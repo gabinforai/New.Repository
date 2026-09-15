@@ -12,16 +12,47 @@
   <header class="navbar">
     <div class="navbar-inner">
       <a href="#home" class="logo">이가빈<span class="dot">.</span></a>
-      <nav class="nav-links">
-        <a href="#about">소개</a>
-        <a href="#education">학력</a>
-        <a href="#achieve">활동 &amp; 자격증</a>
-        <a href="#likes">좋아하는 것</a>
-        <a href="#contact">연락처</a>
-      </nav>
-      <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
-        <span></span><span></span><span></span>
-      </button>
+      <div class="nav-right">
+        <nav class="nav-links">
+          <a href="#about">소개</a>
+          <a href="#education">학력</a>
+          <a href="#achieve">활동 &amp; 자격증</a>
+          <a href="#likes">좋아하는 것</a>
+          <a href="#contact">연락처</a>
+        </nav>
+        <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="share-wrapper">
+          <button
+            class="share-btn"
+            id="shareBtn"
+            type="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="shareMenu"
+          >
+            <span class="share-icon">🔗</span>
+            <span class="share-label">공유하기</span>
+          </button>
+          <div class="share-menu" id="shareMenu" role="menu" hidden>
+            <button class="share-menu-item" id="copyLinkBtn" type="button" role="menuitem">
+              <span class="share-menu-icon">🔗</span>
+              <span>
+                <span class="share-menu-title">링크 공유</span>
+                <span class="share-menu-desc">현재 페이지 주소 복사</span>
+              </span>
+            </button>
+            <button class="share-menu-item" id="sharePdfBtn" type="button" role="menuitem">
+              <span class="share-menu-icon">📄</span>
+              <span>
+                <span class="share-menu-title">PDF 공유</span>
+                <span class="share-menu-desc">핵심 정보만 담은 문서로 저장</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -212,6 +243,44 @@
   <footer class="footer">
     <p>&copy; 2026 Lee Gabin. All rights reserved.</p>
   </footer>
+
+  <!-- 공유하기 토스트 알림 -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- PDF 전용 구조화 문서 (인쇄 시에만 표시, 화면에는 보이지 않음) -->
+  <div class="print-resume" id="printResume">
+    <div class="pr-header">
+      <h1 id="prName">이가빈</h1>
+      <p id="prTagline">상명대학교 천안캠퍼스 · 그린스마트시티학과</p>
+    </div>
+
+    <section class="pr-section">
+      <h2>기본 정보</h2>
+      <dl class="pr-basic-info" id="prBasicInfo"></dl>
+    </section>
+
+    <section class="pr-section">
+      <h2>학력</h2>
+      <ul class="pr-list" id="prEducation"></ul>
+    </section>
+
+    <section class="pr-section">
+      <h2>활동 &amp; 업적</h2>
+      <ul class="pr-list" id="prAchieve"></ul>
+    </section>
+
+    <section class="pr-section">
+      <h2>좋아하는 것</h2>
+      <p id="prLikes"></p>
+    </section>
+
+    <section class="pr-section">
+      <h2>연락처</h2>
+      <ul class="pr-list" id="prContact"></ul>
+    </section>
+
+    <p class="pr-footer">이가빈 포트폴리오에서 생성됨 &middot; <span id="prDate"></span></p>
+  </div>
 
   <script src="script.js"></script>
 </body>
