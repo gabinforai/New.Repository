@@ -184,57 +184,78 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 `frontend/js/config.js` 의 `API_BASE_URL` 값을 백엔드 서버의 실제 주소로 바꾸고,
 `backend/.env` 의 `FRONTEND_ORIGIN` 값을 프론트엔드가 배포된 주소로 설정하면 됩니다(CORS 허용).
 
-## Vercel 배포
+## 배포 구조: 프론트엔드 = Vercel, 백엔드 = Render
 
-저장소 최상위의 `vercel.json` 이 프론트엔드/백엔드를 하나의 배포로 묶어줍니다.
-`backend/src/app.js` 의 Express 앱을 서버리스 함수로 실행하고, 그 안에서 로컬과
-동일하게 `frontend/` 정적 파일도 함께 서빙합니다. 즉, 로컬(`node server.js`)과
-Vercel 운영 환경의 동작 방식이 동일합니다.
+프론트엔드(`frontend/`)와 백엔드(`backend/`)를 완전히 다른 서비스에 각각 배포합니다.
 
-### Vercel 프로젝트 설정에서 확인해야 할 것
+- **프론트엔드 → Vercel**: 정적 파일(`frontend/`)만 올립니다. 빌드 과정이 없는
+  순수 HTML/CSS/JS라 Vercel이 가장 잘하는 방식 그대로입니다.
+- **백엔드 → Render**: `backend/`를 진짜 Node.js 서버(Express, `npm start`)로
+  계속 띄워두는 방식입니다. Vercel 서버리스 함수와 달리 파일시스템이 요청 사이에도
+  유지되고, 우리 코드를 거의 그대로(파일 기반 저장 포함) 쓸 수 있습니다.
+- 두 서비스는 서로 다른 도메인이므로, `frontend/js/config.js` 가 접속 주소를
+  보고 자동으로 Render 백엔드 주소를 사용하도록 이미 구성해뒀습니다. 로그인
+  쿠키도 도메인을 넘나들 수 있도록(cross-site) 백엔드에서 처리해뒀습니다.
 
-1. **Settings → Git**: 저장소가 `gabinforai/New.Repository` 로 연결되어 있고
-   Production Branch가 `main` 인지 확인합니다.
-2. **Settings → General → Root Directory**: 비어있거나(저장소 최상위) `.` 로
-   되어 있어야 합니다. `frontend`/`backend` 폴더로 나뉘기 전 설정이 남아있다면
-   반드시 저장소 최상위로 바꿔주세요. (여기가 어긋나 있으면 `vercel.json` 자체를
-   읽지 못해 배포가 실패하거나 예전 설정으로 빌드됩니다.)
-3. **Settings → Environment Variables**: 관리자 로그인에 필요한 값을 등록해야
-   합니다. `backend/.env` 는 git에 올라가지 않으므로 Vercel에는 직접 입력해야 합니다.
+### 1. 백엔드 배포 (Render)
+
+저장소 최상위의 `render.yaml` 이 설정을 자동으로 채워줍니다.
+
+1. [render.com](https://render.com) 에서 GitHub 계정으로 로그인/가입 (무료)
+2. **New +** → **Blueprint** → 이 저장소(`gabinforai/New.Repository`) 선택
+3. Render가 `render.yaml` 을 읽어 서비스 이름(`gabin-portfolio-backend`), 루트
+   폴더(`backend`), 빌드/실행 명령을 자동으로 채웁니다. 아래 값들만 직접 입력해주세요.
 
    | 이름 | 값 |
    | --- | --- |
-   | `ADMIN_PASSWORD_HASH` | 로컬 `backend/.env` 에 있는 현재 값을 그대로 복사 (또는 `npm run hash-password -- "새비밀번호"` 로 새로 생성) |
-   | `ADMIN_JWT_SECRET` | 로컬 `backend/.env` 에 있는 현재 값을 그대로 복사 (또는 새 임의 문자열 생성) |
-   | `ADMIN_SESSION_HOURS` | `8` (선택, 기본값과 동일) |
+   | `ADMIN_PASSWORD_HASH` | 로컬 `backend/.env` 의 현재 값을 그대로 복사 |
+   | `ADMIN_JWT_SECRET` | 로컬 `backend/.env` 의 현재 값을 그대로 복사 |
+   | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | 아래 "2. 데이터 저장" 참고 (일단 비워두고 나중에 채워도 됩니다) |
 
-   값을 등록한 뒤에는 반드시 **Redeploy** 를 눌러야 반영됩니다. (환경 변수는
-   재배포 시점에만 함수에 주입됩니다.)
+4. **Apply** 를 누르면 배포가 시작되고, 완료되면 `https://gabin-portfolio-backend.onrender.com`
+   같은 주소가 생깁니다. (서비스 이름을 다르게 지었다면 `frontend/js/config.js` 의
+   `RENDER_BACKEND_URL` 값도 그 주소로 바꿔주세요.)
 
-4. 위 설정을 마치면, 이번에 푸시한 커밋이 자동으로 다시 빌드되거나(깃 연동이
-   살아있는 경우) Deployments 탭에서 최신 커밋을 수동으로 **Redeploy** 하면
-   `https://new-repository-one-rose.vercel.app/` 로 다시 접속할 수 있습니다.
+**참고**: Render 무료 플랜은 15분 동안 요청이 없으면 서버가 잠들고, 다음 요청이
+올 때 다시 깨어나는 데 30~60초 정도 걸립니다. 개인 포트폴리오처럼 트래픽이
+많지 않은 사이트에는 무료로 충분하지만, 첫 방문 시 살짝 느릴 수 있다는 점만
+참고해주세요.
 
-### 5. 관리자 페이지 저장 기능이 Vercel에서도 동작하게 하려면 (Upstash Redis 연결)
+### 2. 데이터 저장 (프로젝트 목록이 재시작해도 남아있게)
 
-Vercel의 서버리스 함수는 배포된 코드 영역이 **읽기 전용**이라, 로컬처럼 JSON
-파일에 직접 쓰는 방식은 Vercel에서 그대로 쓸 수 없습니다. (포트폴리오 화면에
-기존 데이터를 **보여주는 것**은 파일을 읽기만 하면 되므로 문제없이 동작합니다.)
+Render 무료 플랜은 디스크가 영구 저장소가 아니라서, 로컬처럼 파일에만 저장하면
+서버가 재시작(재배포, 일정 시간 미사용 후 재기동 등)될 때 관리자 페이지에서
+등록한 프로젝트가 사라질 수 있습니다. `backend/src/data/projectsRepository.js`
+는 아래 환경 변수가 있으면 자동으로 Redis를 쓰고, 없으면 파일을 씁니다.
 
-`backend/src/data/projectsRepository.js` 는 이제 두 가지 저장 방식을 자동으로
-구분해서 씁니다. 로컬에서는 지금처럼 파일을 그대로 쓰고, 아래 환경 변수가
-설정되어 있으면 자동으로 Redis를 사용합니다. Vercel 자체 KV/Postgres는
-단종되어 지금은 마켓플레이스 연동(Neon, Upstash 등)으로 제공되는데, 우리
-데이터는 프로젝트 목록 하나뿐인 단순한 구조라 Upstash(Redis)가 가장 간단하고,
-무료 제공량(하루 요청 수만 건)으로 개인 포트폴리오 용도에는 충분합니다.
+1. [Upstash](https://upstash.com) (무료 가입) 또는 Render 자체 Key Value
+   서비스에서 Redis(또는 REST API를 지원하는 KV) 데이터베이스를 만듭니다.
+2. 발급된 REST URL/Token을 Render 서비스의 환경 변수로 등록합니다.
+   `KV_REST_API_URL`, `KV_REST_API_TOKEN`
+3. Render에서 **Manual Deploy → Deploy latest commit** 으로 재배포합니다.
 
-1. Vercel 프로젝트 페이지 → **Storage** 탭 → **Create Database** (또는 **Browse Marketplace**)
-2. **Upstash** 선택 → **Redis** 생성 (무료 플랜 선택)
-3. 생성한 데이터베이스를 이 프로젝트(New.Repository)에 **Connect**
-4. Vercel이 `KV_REST_API_URL`, `KV_REST_API_TOKEN` 환경 변수를 프로젝트에
-   자동으로 추가해줍니다. (변수 이름이 다르게 표시된다면 실제 이름을 확인해서
-   알려주세요 - 코드에서 인식하는 이름을 맞춰드리겠습니다.)
-5. **Deployments** 탭에서 최신 배포를 **Redeploy** 합니다.
+이 값이 없어도 사이트 자체는 정상 작동합니다. 다만 관리자 페이지에서 등록한
+내용이 서버 재시작 후에도 남아있게 하려면 이 설정을 권장합니다.
+
+### 3. 프론트엔드 배포 (Vercel)
+
+1. Vercel 프로젝트 → **Settings → General → Root Directory** 를 `frontend` 로
+   설정합니다. (지금까지는 저장소 최상위를 가리키고 있었을텐데, 이제 프론트엔드는
+   완전히 별도의 정적 사이트이므로 `frontend` 폴더를 루트로 지정해야 합니다.)
+2. **Settings → General → Framework Preset** 은 `Other` (정적 파일 그대로 제공)로
+   두면 됩니다. 별도 빌드 명령이 필요 없습니다.
+3. **Deployments** 탭에서 최신 커밋으로 **Redeploy** 합니다.
+4. 완료되면 `https://new-repository-one-rose.vercel.app/` 에서 정상적으로
+   보이고, 관리자 페이지(`/admin/login.html`)에서 로그인하면 Render에 배포된
+   백엔드로 요청이 전달됩니다.
+
+### 요약
+
+| 무엇을 | 어디서 | 비용 |
+| --- | --- | --- |
+| 정적 프론트엔드 (`frontend/`) | Vercel | 무료 (Hobby) |
+| API 서버 (`backend/`) | Render | 무료 (Free 웹 서비스) |
+| 프로젝트 데이터 저장 | Upstash Redis (선택) | 무료 (소규모 사용량) |
 
 이후로는 Vercel에 배포된 관리자 페이지에서 저장한 프로젝트가 Redis에 저장되고,
 공개 사이트에도 정상적으로 반영됩니다. 로컬 개발 환경은 이 설정과 무관하게

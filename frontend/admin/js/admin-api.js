@@ -1,6 +1,8 @@
 // 관리자 화면에서 백엔드와 통신하는 함수 모음
 // 모든 요청에 credentials: 'include' 를 넣어 로그인 쿠키(httpOnly)를 함께 전송합니다.
-const ADMIN_API_BASE = '/api/admin';
+// API_BASE_URL은 config.js 에서 정의합니다 (로컬/Vercel 여부에 따라 자동으로
+// localhost 또는 Render 백엔드 주소를 가리킵니다). 이 파일보다 먼저 로드되어야 합니다.
+const ADMIN_API_BASE = `${API_BASE_URL}/admin`;
 
 async function handleResponse(res) {
   if (res.status === 204) return null;

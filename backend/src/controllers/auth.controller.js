@@ -2,10 +2,15 @@ const authService = require('../services/auth.service');
 const config = require('../config');
 
 function cookieOptions() {
+  const isProd = config.nodeEnv === 'production';
   return {
     httpOnly: true, // 자바스크립트로 읽을 수 없음 (XSS로부터 토큰 보호)
-    sameSite: 'lax',
-    secure: config.nodeEnv === 'production', // 운영 환경(HTTPS)에서만 secure 플래그 적용
+    // 프론트엔드(Vercel)와 백엔드(Render)가 서로 다른 도메인이므로, 운영 환경에서는
+    // sameSite:'none' + secure:true 조합이 필요합니다(브라우저가 cross-site 요청에
+    // 쿠키를 실어 보내려면 이 조합이 필수). secure:true 쿠키는 HTTPS에서만 전송되므로
+    // 로컬 개발(http://localhost)에서는 그대로 'lax' + secure:false 를 씁니다.
+    sameSite: isProd ? 'none' : 'lax',
+    secure: isProd,
     // maxAge를 일부러 지정하지 않습니다 -> "세션 쿠키"가 되어 브라우저(모든 창)를
     // 완전히 종료하면 자동으로 삭제됩니다. 즉, 브라우저를 껐다 켜면 다시 로그인해야 합니다.
     // (탭/창을 하나만 닫는 것으로는 지워지지 않습니다 - 쿠키는 브라우저 프로필 단위로
@@ -35,7 +40,7 @@ async function login(req, res, next) {
 }
 
 function logout(req, res) {
-  res.clearCookie(config.sessionCookieName, { path: '/' });
+  res.clearCookie(config.sessionCookieName, cookieOptions());
   res.json({ ok: true });
 }
 
