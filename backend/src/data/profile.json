@@ -1,0 +1,16 @@
+{
+  "name": "이가빈",
+  "tagline": "상명대학교 천안캠퍼스 · 그린스마트시티학과",
+  "heroEyebrow": "Green Smart City Student",
+  "heroDesc": "이가빈을 알아보세요!",
+  "basicInfo": [
+    { "icon": "🎂", "label": "생년월일", "value": "2005년 11월 10일" },
+    { "icon": "♏", "label": "별자리", "value": "전갈자리" },
+    { "icon": "🐓", "label": "띠", "value": "닭띠" },
+    { "icon": "🧩", "label": "MBTI", "value": "ISFP" },
+    { "icon": "📍", "label": "출생", "value": "서울특별시 강서구<br>유광사 산부인과" },
+    { "icon": "🏠", "label": "사는 곳", "value": "서울특별시 강서구" },
+    { "icon": "🏫", "label": "지내는 곳", "value": "충청남도 천안시 동남구" },
+    { "icon": "🚗", "label": "자격증", "value": "제2종 보통 운전면허" }
+  ]
+}

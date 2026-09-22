@@ -1,0 +1,14 @@
+[
+  {
+    "type": "email",
+    "icon": "✉️",
+    "label": "lee89851110@gmail.com",
+    "href": "mailto:lee89851110@gmail.com"
+  },
+  {
+    "type": "instagram",
+    "icon": "📷",
+    "label": "@__leegabin__",
+    "href": "https://www.instagram.com/__leegabin__/"
+  }
+]

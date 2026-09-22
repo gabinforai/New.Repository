@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>이가빈 | Portfolio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 네비게이션 -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="#home" class="logo">이가빈<span class="dot">.</span></a>
+      <div class="nav-right">
+        <nav class="nav-links">
+          <a href="#about">소개</a>
+          <a href="#education">학력</a>
+          <a href="#achieve">활동 &amp; 자격증</a>
+          <a href="#likes">좋아하는 것</a>
+          <a href="#contact">연락처</a>
+        </nav>
+        <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="share-wrapper">
+          <button
+            class="share-btn"
+            id="shareBtn"
+            type="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="shareMenu"
+          >
+            <span class="share-icon">🔗</span>
+            <span class="share-label">공유하기</span>
+          </button>
+          <div class="share-menu" id="shareMenu" role="menu" hidden>
+            <button class="share-menu-item" id="copyLinkBtn" type="button" role="menuitem">
+              <span class="share-menu-icon">🔗</span>
+              <span>
+                <span class="share-menu-title">링크 공유</span>
+                <span class="share-menu-desc">현재 페이지 주소 복사</span>
+              </span>
+            </button>
+            <button class="share-menu-item" id="sharePdfBtn" type="button" role="menuitem">
+              <span class="share-menu-icon">📄</span>
+              <span>
+                <span class="share-menu-title">PDF 공유</span>
+                <span class="share-menu-desc">핵심 정보만 담은 문서로 저장</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 히어로 -->
+  <section id="home" class="hero">
+    <div class="hero-bg">
+      <span class="leaf leaf1"></span>
+      <span class="leaf leaf2"></span>
+      <span class="leaf leaf3"></span>
+    </div>
+    <div class="hero-content reveal">
+      <p class="hero-eyebrow" id="heroEyebrow">Green Smart City Student</p>
+      <h1>안녕하세요,<br><span class="accent"></span>입니다 🌱</h1>
+      <p class="hero-desc" id="heroDesc"></p>
+      <div class="hero-buttons">
+        <a href="#about" class="btn btn-primary">더 알아보기</a>
+        <a href="#contact" class="btn btn-outline">연락하기</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 기본 정보 -->
+  <section id="about" class="section">
+    <div class="section-inner">
+      <p class="section-tag">ABOUT ME</p>
+      <h2 class="section-title">기본 정보</h2>
+      <div class="info-grid" id="infoGrid">
+        <p class="loading-text">불러오는 중...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 학력 타임라인 -->
+  <section id="education" class="section section-alt">
+    <div class="section-inner">
+      <p class="section-tag">EDUCATION</p>
+      <h2 class="section-title">학력</h2>
+      <div class="timeline" id="timeline">
+        <p class="loading-text">불러오는 중...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 활동 및 자격증 -->
+  <section id="achieve" class="section">
+    <div class="section-inner">
+      <p class="section-tag">ACHIEVEMENTS</p>
+      <h2 class="section-title">활동 &amp; 업적</h2>
+      <div class="achieve-grid" id="achieveGrid">
+        <p class="loading-text">불러오는 중...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 좋아하는 것 -->
+  <section id="likes" class="section section-alt">
+    <div class="section-inner">
+      <p class="section-tag">FAVORITES</p>
+      <h2 class="section-title">좋아하는 것</h2>
+      <div class="likes-grid" id="likesGrid">
+        <p class="loading-text">불러오는 중...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 연락처 -->
+  <section id="contact" class="section contact-section">
+    <div class="section-inner contact-inner reveal">
+      <p class="section-tag">CONTACT</p>
+      <h2 class="section-title">연락처</h2>
+      <p class="contact-desc">궁금한 점이 있다면 언제든 편하게 연락해 주세요 :)</p>
+      <div class="contact-links" id="contactLinks">
+        <p class="loading-text">불러오는 중...</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 Lee Gabin. All rights reserved.</p>
+  </footer>
+
+  <!-- 공유하기 토스트 알림 -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- PDF 전용 구조화 문서 (인쇄 시에만 표시, 화면에는 보이지 않음) -->
+  <div class="print-resume" id="printResume">
+    <div class="pr-header">
+      <h1 id="prName">이가빈</h1>
+      <p id="prTagline">상명대학교 천안캠퍼스 · 그린스마트시티학과</p>
+    </div>
+
+    <section class="pr-section">
+      <h2>기본 정보</h2>
+      <dl class="pr-basic-info" id="prBasicInfo"></dl>
+    </section>
+
+    <section class="pr-section">
+      <h2>학력</h2>
+      <ul class="pr-list" id="prEducation"></ul>
+    </section>
+
+    <section class="pr-section">
+      <h2>활동 &amp; 업적</h2>
+      <ul class="pr-list" id="prAchieve"></ul>
+    </section>
+
+    <section class="pr-section">
+      <h2>좋아하는 것</h2>
+      <p id="prLikes"></p>
+    </section>
+
+    <section class="pr-section">
+      <h2>연락처</h2>
+      <ul class="pr-list" id="prContact"></ul>
+    </section>
+
+    <p class="pr-footer">이가빈 포트폴리오에서 생성됨 &middot; <span id="prDate"></span></p>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/app-init.js"></script>
+</body>
+</html>

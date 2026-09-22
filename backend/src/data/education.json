@@ -1,0 +1,14 @@
+[
+  { "school": "YMCA 어린이집", "status": "졸업", "current": false },
+  { "school": "상록어린이집", "status": "졸업", "current": false },
+  { "school": "서울치현초등학교", "status": "졸업", "current": false },
+  { "school": "방원중학교", "status": "졸업", "current": false },
+  { "school": "서울공항고등학교", "status": "졸업", "current": false },
+  {
+    "school": "상명대학교 천안캠퍼스",
+    "department": "그린스마트시티학과",
+    "admissionYear": "24",
+    "status": "재학 중",
+    "current": true
+  }
+]
