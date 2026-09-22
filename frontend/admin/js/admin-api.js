@@ -83,3 +83,12 @@ async function requireAdminSession() {
     return false;
   }
 }
+
+// 브라우저의 뒤로/앞으로 가기 캐시(bfcache)로 페이지가 복원되면
+// 자바스크립트가 다시 실행되지 않아 로그아웃 이후에도 화면이 남아있을 수 있습니다.
+// 이런 경우를 감지해 페이지를 새로고침해서 로그인 상태를 다시 확인하게 합니다.
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    window.location.reload();
+  }
+});

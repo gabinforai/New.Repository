@@ -6,7 +6,10 @@ function cookieOptions() {
     httpOnly: true, // 자바스크립트로 읽을 수 없음 (XSS로부터 토큰 보호)
     sameSite: 'lax',
     secure: config.nodeEnv === 'production', // 운영 환경(HTTPS)에서만 secure 플래그 적용
-    maxAge: config.jwtExpiresInMs,
+    // maxAge를 일부러 지정하지 않습니다 -> "세션 쿠키"가 되어 브라우저(모든 창)를
+    // 완전히 종료하면 자동으로 삭제됩니다. 즉, 브라우저를 껐다 켜면 다시 로그인해야 합니다.
+    // (탭/창을 하나만 닫는 것으로는 지워지지 않습니다 - 쿠키는 브라우저 프로필 단위로
+    //  공유되기 때문입니다. 완전히 종료해야 지워집니다.)
     path: '/',
   };
 }
