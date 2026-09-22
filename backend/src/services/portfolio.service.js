@@ -9,6 +9,7 @@
  * ---------------------------------------------------------------
  */
 const repository = require('../data/portfolioRepository');
+const projectsService = require('./projects.service');
 
 async function getProfile() {
   return repository.getProfile();
@@ -32,15 +33,16 @@ async function getContact() {
 
 // 여러 데이터를 한 번에 조합해서 반환 (프론트엔드에서 한 번의 요청으로 전체 데이터를 받을 때 사용)
 async function getFullPortfolio() {
-  const [profile, education, achievements, likes, contact] = await Promise.all([
+  const [profile, education, achievements, likes, contact, projects] = await Promise.all([
     getProfile(),
     getEducation(),
     getAchievements(),
     getLikes(),
     getContact(),
+    projectsService.getPublishedProjects(), // 공개(published) 상태인 프로젝트만 포함
   ]);
 
-  return { profile, education, achievements, likes, contact };
+  return { profile, education, achievements, likes, contact, projects };
 }
 
 module.exports = {

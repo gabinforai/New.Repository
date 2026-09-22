@@ -19,24 +19,46 @@
 │       ├── main.js         # 메뉴, 스크롤 애니메이션, 공유하기, PDF 내보내기
 │       └── app-init.js     # 페이지 진입 시 데이터 로딩 -> 렌더링 -> 인터랙션 초기화 순서 제어
 │
+├── frontend/admin/          # 관리자 화면(로그인 필요)
+│   ├── login.html
+│   ├── dashboard.html        # 프로젝트 목록 (초안+공개 모두 보임)
+│   ├── editor.html           # 프로젝트 작성/수정 폼
+│   ├── css/admin.css
+│   └── js/
+│       ├── admin-api.js      # 관리자 API 호출 + 로그인 여부 확인
+│       ├── login.js
+│       ├── dashboard.js
+│       └── editor.js
+│
 └── backend/                 # API 서버 (Node.js + Express)
     ├── server.js             # 서버 시작점
     ├── package.json
     ├── .env.example          # 환경 변수 예시 (복사해서 .env로 사용)
+    ├── scripts/
+    │   └── hash-password.js  # 관리자 비밀번호 해시 생성 스크립트
     └── src/
-        ├── app.js             # Express 앱 설정 (CORS, 라우팅, 정적 파일 제공)
-        ├── config/            # 환경 설정 (포트, DB 주소 등)
+        ├── app.js             # Express 앱 설정 (CORS, 쿠키, 라우팅, 정적 파일 제공)
+        ├── config/            # 환경 설정 (포트, DB 주소, 관리자 인증 설정 등)
         ├── routes/            # URL 경로와 컨트롤러 연결
+        │   ├── portfolio.routes.js
+        │   ├── projects.routes.js       # 공개용: 공개(published) 프로젝트만
+        │   ├── admin.projects.routes.js # 관리자 전용: 로그인 필요
+        │   └── auth.routes.js           # 로그인/로그아웃/세션 확인
         ├── controllers/       # HTTP 요청/응답 처리
-        ├── services/          # 업무 로직 (여러 데이터 조합 등)
+        ├── services/          # 업무 로직 (검증 규칙, 여러 데이터 조합 등)
         ├── data/              # 데이터 저장소 계층 (지금은 JSON, 나중엔 DB로 교체)
         │   ├── portfolioRepository.js
+        │   ├── projectsRepository.js
         │   ├── profile.json
         │   ├── education.json
         │   ├── achievements.json
         │   ├── likes.json
-        │   └── contact.json
-        └── middleware/        # 에러 처리 등 공통 미들웨어
+        │   ├── contact.json
+        │   └── projects.json        # 관리자 화면에서 등록한 프로젝트 데이터
+        └── middleware/
+            ├── requireAuth.js        # 로그인 필요한 API 보호
+            ├── rateLimitLogin.js     # 로그인 무차별 대입 시도 제한
+            └── errorHandler.js
 ```
 
 ## 실행 방법
@@ -57,22 +79,84 @@ npm start           # http://localhost:3000 에서 서버 실행 (프론트엔�
 npm run dev
 ```
 
+## 관리자 페이지 (프로젝트 관리)
+
+파일을 직접 고치지 않고, 브라우저에서 로그인해서 프로젝트(제목 / 내가 한 역할 / 설명 /
+날짜 / 참여인원 수 / 참고사항)를 등록·수정할 수 있습니다.
+
+### 1. 최초 설정 - 관리자 비밀번호 만들기
+
+비밀번호는 평문으로 저장하지 않고 bcrypt 해시로만 저장합니다.
+
+```bash
+cd backend
+npm run hash-password -- "원하는비밀번호"
+```
+
+출력된 해시값을 `backend/.env` 파일에 붙여넣습니다. (`.env.example` 을 복사해서 `.env` 를 만드세요.)
+
+```
+ADMIN_PASSWORD_HASH=여기에_출력된_해시값
+ADMIN_JWT_SECRET=아무거나_추측하기_어려운_긴_임의의_문자열
+```
+
+`ADMIN_JWT_SECRET` 은 아래 명령으로 무작위 생성할 수 있습니다.
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+설정 후 서버를 (재)시작하면 완료입니다.
+
+### 2. 사용 방법
+
+1. 브라우저에서 `http://localhost:3000/admin/login.html` 접속
+2. 비밀번호 입력 후 로그인 (로그인 상태는 8시간 동안 유지되며, 기본값은
+   `ADMIN_SESSION_HOURS` 로 조절 가능)
+3. `+ 새 프로젝트` 로 프로젝트를 작성하거나, 목록에서 `수정`/`삭제`
+4. 빈 칸에는 무엇을 입력해야 하는지 옅은 색 예시 문구가 보이고, 입력을 시작하면 자동으로 사라집니다.
+5. **초안으로 저장**: 참고사항을 포함해 모든 칸을 비워도 저장할 수 있습니다. 사용자에게는 보이지 않고, 관리자 화면에서만 보입니다.
+6. **공개하기**: 참고사항을 제외한 모든 칸(제목/역할/설명/날짜/참여인원 수)을 입력해야 저장됩니다. 저장 즉시 실제 웹사이트의 "프로젝트" 섹션에 반영됩니다.
+
+### 3. 보안
+
+- 비밀번호는 서버에 bcrypt 해시로만 저장되고, 로그인 시 입력값과 비교만 할 뿐
+  어디에도 원문으로 남지 않습니다. 프론트엔드 코드(JS/HTML)에는 비밀번호나 해시가
+  전혀 포함되지 않습니다.
+- 로그인에 성공하면 서버가 `httpOnly` 쿠키에 로그인 토큰(JWT)을 담아 내려줍니다.
+  `httpOnly` 쿠키는 자바스크립트로 읽을 수 없어 XSS 공격으로도 토큰을 훔칠 수 없습니다.
+- 관리자 전용 API(`/api/admin/...`)는 모두 이 쿠키를 검증하는 `requireAuth` 미들웨어로
+  보호되어 있어, 로그인하지 않으면 어떤 경로로도 접근할 수 없습니다.
+- 로그인 시도는 IP당 15분에 10회로 제한되어 있어 무차별 대입 공격을 늦춥니다.
+- `backend/.env` 파일(비밀번호 해시, 세션 비밀 키 포함)은 `.gitignore` 에 등록되어 있어
+  git 저장소에 절대 커밋되지 않습니다.
+
 ## API 목록
 
-| Method | 경로 | 설명 |
-| --- | --- | --- |
-| GET | `/api/portfolio` | 전체 데이터(프로필+학력+활동+좋아하는 것+연락처)를 한 번에 반환 |
-| GET | `/api/profile` | 기본 정보 |
-| GET | `/api/education` | 학력 타임라인 |
-| GET | `/api/achievements` | 활동 & 업적 |
-| GET | `/api/likes` | 좋아하는 것 목록 |
-| GET | `/api/contact` | 연락처 목록 |
+| Method | 경로 | 인증 | 설명 |
+| --- | --- | --- | --- |
+| GET | `/api/portfolio` | - | 전체 공개 데이터(프로필+학력+활동+프로젝트+좋아하는 것+연락처) |
+| GET | `/api/profile` | - | 기본 정보 |
+| GET | `/api/education` | - | 학력 타임라인 |
+| GET | `/api/achievements` | - | 활동 & 업적 |
+| GET | `/api/likes` | - | 좋아하는 것 목록 |
+| GET | `/api/contact` | - | 연락처 목록 |
+| GET | `/api/projects` | - | 공개(published) 프로젝트 목록 |
+| POST | `/api/admin/login` | - | 관리자 로그인 (비밀번호 확인 후 세션 쿠키 발급) |
+| POST | `/api/admin/logout` | - | 로그아웃 (세션 쿠키 삭제) |
+| GET | `/api/admin/me` | 필요 | 로그인 상태 확인 |
+| GET | `/api/admin/projects` | 필요 | 프로젝트 전체 목록 (초안+공개) |
+| GET | `/api/admin/projects/:id` | 필요 | 프로젝트 1건 조회 |
+| POST | `/api/admin/projects` | 필요 | 프로젝트 생성 |
+| PUT | `/api/admin/projects/:id` | 필요 | 프로젝트 수정 |
+| DELETE | `/api/admin/projects/:id` | 필요 | 프로젝트 삭제 |
 
 ## 나중에 실제 데이터베이스를 연결하려면
 
 1. `backend/.env.example` 을 복사해 `backend/.env` 를 만들고 `DATABASE_URL` 에 접속 주소를 입력합니다.
 2. DB 드라이버(mongoose, pg 등)를 설치합니다.
-3. `backend/src/data/portfolioRepository.js` 안의 함수들만 DB 조회 코드로 바꿉니다.
+3. `backend/src/data/portfolioRepository.js` 와 `backend/src/data/projectsRepository.js`
+   안의 함수들만 DB 조회 코드로 바꿉니다.
    함수 이름과 반환값 형태만 유지하면 `services/`, `controllers/`, `routes/` 는 전혀 손댈 필요가 없습니다.
 
 ## 나중에 다른 외부 API를 연결하려면

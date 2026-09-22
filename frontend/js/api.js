@@ -16,4 +16,5 @@ const api = {
   getAchievements: () => fetchJson('/achievements'),
   getLikes: () => fetchJson('/likes'),
   getContact: () => fetchJson('/contact'),
+  getProjects: () => fetchJson('/projects'), // 공개(published) 프로젝트만 반환
 };

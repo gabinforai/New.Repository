@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프로젝트 관리 | 이가빈 Portfolio</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <h1>프로젝트 관리</h1>
+    <div class="admin-header-actions">
+      <a href="editor.html" class="btn btn-primary">+ 새 프로젝트</a>
+      <button id="logoutBtn" class="btn btn-outline" type="button">로그아웃</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div class="dup-warning" id="duplicateWarning" hidden></div>
+    <p class="loading-text" id="listStatus">불러오는 중...</p>
+    <div class="admin-project-list" id="projectList"></div>
+  </main>
+
+  <script src="js/admin-api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

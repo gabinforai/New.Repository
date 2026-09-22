@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프로젝트 작성 | 이가빈 Portfolio</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <h1 id="editorTitle">새 프로젝트</h1>
+    <a href="dashboard.html" class="btn btn-outline">목록으로</a>
+  </header>
+
+  <main class="admin-main">
+    <form id="projectForm" class="admin-form" novalidate>
+      <div class="admin-field">
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" placeholder="예: 도시숲 조성 아이디어 공모전">
+      </div>
+
+      <div class="admin-field">
+        <label for="role">내가 한 역할</label>
+        <input type="text" id="role" name="role" placeholder="예: 팀장 · 자료 조사 및 발표">
+      </div>
+
+      <div class="admin-field">
+        <label for="description">설명</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="5"
+          placeholder="예: 도심 유휴공간을 활용한 도시숲 조성 방안을 기획하고 발표했습니다."
+        ></textarea>
+      </div>
+
+      <div class="admin-field">
+        <label for="date">날짜</label>
+        <input type="text" id="date" name="date" placeholder="예: 2026.03 - 2026.05">
+      </div>
+
+      <div class="admin-field">
+        <label for="participants">참여인원 수</label>
+        <input type="number" id="participants" name="participants" min="1" step="1" placeholder="예: 4">
+      </div>
+
+      <div class="admin-field">
+        <label for="notes">참고사항 <span class="admin-optional">(선택 입력)</span></label>
+        <textarea
+          id="notes"
+          name="notes"
+          rows="3"
+          placeholder="예: 관련 링크나 추가로 남기고 싶은 메모"
+        ></textarea>
+      </div>
+
+      <div class="admin-field admin-status-field">
+        <span class="admin-field-label">공개 상태</span>
+        <div class="admin-status-options">
+          <label class="admin-radio">
+            <input type="radio" name="status" value="draft" checked>
+            초안으로 저장
+            <span class="admin-hint">(모든 칸을 채우지 않아도 저장 가능 · 사용자에게 보이지 않음)</span>
+          </label>
+          <label class="admin-radio">
+            <input type="radio" name="status" value="published">
+            공개하기
+            <span class="admin-hint">(참고사항을 제외한 모든 칸을 입력해야 함 · 사용자에게 보임)</span>
+          </label>
+        </div>
+      </div>
+
+      <p class="admin-error" id="formError" hidden></p>
+
+      <div class="admin-form-actions">
+        <button type="submit" class="btn btn-primary" id="formSubmit">저장</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="js/admin-api.js"></script>
+  <script src="js/editor.js"></script>
+</body>
+</html>

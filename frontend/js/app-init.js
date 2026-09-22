@@ -10,6 +10,7 @@ async function initPortfolio() {
     renderBasicInfo(data.profile.basicInfo);
     renderEducation(data.education);
     renderAchievements(data.achievements);
+    renderProjects(data.projects || []);
     renderLikes(data.likes);
     renderContact(data.contact);
   } catch (err) {
@@ -18,6 +19,7 @@ async function initPortfolio() {
     renderError('infoGrid', message);
     renderError('timeline', message);
     renderError('achieveGrid', message);
+    renderError('projectsGrid', message);
     renderError('likesGrid', message);
     renderError('contactLinks', message);
   } finally {

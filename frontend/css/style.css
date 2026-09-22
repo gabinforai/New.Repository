@@ -376,6 +376,74 @@ ul{ list-style:none; margin:0; padding:0; }
 }
 .achieve-desc{ margin:0; color: var(--ink); font-size:1.02rem; }
 
+/* ---------- Projects ---------- */
+.projects-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+.project-card{
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px 24px;
+  box-shadow: var(--shadow);
+  transition: transform .25s ease;
+  text-align: left;
+}
+.project-card:hover{ transform: translateY(-4px); }
+.project-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.project-card-head h3{
+  margin:0;
+  font-size:1.05rem;
+  color: var(--green-900);
+}
+.project-date{
+  flex-shrink:0;
+  font-size:0.78rem;
+  font-weight:700;
+  color: var(--green-700);
+  background: var(--green-100);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.project-role{
+  margin: 0 0 10px;
+  color: var(--green-600);
+  font-weight:700;
+  font-size:0.88rem;
+}
+.project-desc{
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size:0.95rem;
+  line-height:1.6;
+}
+.project-meta{
+  display:flex;
+  gap:10px;
+  margin-bottom: 8px;
+}
+.project-participants{
+  font-size:0.8rem;
+  color: var(--muted);
+  font-weight:600;
+}
+.project-notes{
+  margin:0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size:0.85rem;
+  color: var(--muted);
+}
+
 /* ---------- Likes ---------- */
 .likes-grid{
   display:flex;
@@ -453,6 +521,7 @@ ul{ list-style:none; margin:0; padding:0; }
 @media (max-width: 860px){
   .info-grid{ grid-template-columns: repeat(2, 1fr); }
   .achieve-grid{ grid-template-columns: 1fr; }
+  .projects-grid{ grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px){

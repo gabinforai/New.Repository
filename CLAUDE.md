@@ -13,6 +13,12 @@
 - 새 데이터 종류를 추가할 때: `backend/src/data/*.json` 추가 → repository 함수 추가 →
   service/controller/route 추가 → 프론트엔드 `js/api.js` 에 호출 함수 추가 →
   `js/render.js` 에 렌더링 함수 추가.
+- `frontend/admin/` 은 비밀번호 로그인이 필요한 관리자 전용 화면입니다(로그인/대시보드/작성-수정 폼).
+  프로젝트(제목/역할/설명/날짜/참여인원/참고사항)를 초안 또는 공개 상태로 저장할 수 있고,
+  공개 상태인 것만 `/api/projects` 와 `/api/portfolio` 에 노출되어 실제 사이트에 보입니다.
+- 인증: `backend/src/services/auth.service.js` 가 bcrypt 비밀번호 검증 + JWT 세션 발급을 담당하고,
+  `backend/src/middleware/requireAuth.js` 가 `/api/admin/*` 요청의 httpOnly 쿠키를 검증합니다.
+  비밀번호 해시/세션 비밀키는 `backend/.env` (git에 커밋되지 않음)에만 있습니다.
 
 ## 실행
 

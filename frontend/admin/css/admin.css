@@ -1,0 +1,329 @@
+/* 관리자 화면 전용 스타일 - style.css의 색상 변수를 그대로 재사용합니다. */
+
+.admin-body {
+  background: var(--green-50);
+  min-height: 100vh;
+}
+
+/* ---------- 로그인 화면 ---------- */
+.admin-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.admin-login-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.admin-login-card h1 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  color: var(--green-900);
+}
+
+.admin-login-desc {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.admin-login-card label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--green-900);
+  margin-bottom: 8px;
+}
+
+.admin-login-card input[type='password'] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.admin-login-card input[type='password']:focus {
+  outline: none;
+  border-color: var(--green-500);
+}
+
+.admin-submit {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ---------- 공통 헤더 ---------- */
+.admin-header {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--green-900);
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 24px 60px;
+}
+
+button.btn {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+button.btn-outline {
+  border: 1.5px solid var(--green-500);
+  background: var(--paper);
+}
+
+/* ---------- 중복 프로젝트 경고 ---------- */
+.dup-warning {
+  background: #fdf6e3;
+  border: 1.5px solid #f0d999;
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 24px;
+}
+.dup-warning h2 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: #8a6416;
+}
+.dup-warning > p {
+  margin: 0 0 16px;
+  color: #8a6416;
+  font-size: 0.88rem;
+}
+.dup-group {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.dup-group:last-child { margin-bottom: 0; }
+.dup-group-title {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: var(--green-900);
+  font-size: 0.92rem;
+}
+.dup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-top: 1px dashed var(--border);
+}
+.dup-item:first-of-type { border-top: none; padding-top: 0; }
+.dup-item-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dup-item-date {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.dup-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dup-item-actions .btn {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+}
+
+/* ---------- 프로젝트 목록 ---------- */
+.admin-project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-project-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+
+.admin-project-info h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: var(--green-900);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-project-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.admin-project-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.admin-project-actions .btn {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.admin-badge-published {
+  background: var(--green-100);
+  color: var(--green-700);
+}
+.admin-badge-draft {
+  background: #fdf1d9;
+  color: #9a6b12;
+}
+
+/* ---------- 작성/수정 폼 ---------- */
+.admin-form {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-field label,
+.admin-field-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--green-900);
+  margin-bottom: 8px;
+}
+
+.admin-optional {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.admin-field input[type='text'],
+.admin-field input[type='number'],
+.admin-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.admin-field input:focus,
+.admin-field textarea:focus {
+  outline: none;
+  border-color: var(--green-500);
+}
+
+/* 빈 칸일 때 보이는 예시 문구 (placeholder) - 옅은 색, 입력하면 자동으로 사라짐 */
+.admin-field input::placeholder,
+.admin-field textarea::placeholder {
+  color: #b7c9c0;
+}
+
+.admin-status-field {
+  background: var(--green-50);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.admin-status-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-radio {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--green-900);
+  cursor: pointer;
+}
+
+.admin-radio input {
+  margin: 0;
+}
+
+.admin-hint {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-error {
+  background: #fdeceb;
+  color: #b3261e;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
