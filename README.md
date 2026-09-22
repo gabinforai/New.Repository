@@ -170,6 +170,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 3. `backend/src/data/portfolioRepository.js` 와 `backend/src/data/projectsRepository.js`
    안의 함수들만 DB 조회 코드로 바꿉니다.
    함수 이름과 반환값 형태만 유지하면 `services/`, `controllers/`, `routes/` 는 전혀 손댈 필요가 없습니다.
+   (`projectsRepository.js` 는 이미 로컬 파일 / Redis를 자동으로 구분해 쓰는 예시가 들어있습니다.
+   자세한 내용은 아래 "Vercel 배포" 섹션 참고.)
 
 ## 나중에 다른 외부 API를 연결하려면
 
@@ -213,16 +215,27 @@ Vercel 운영 환경의 동작 방식이 동일합니다.
    살아있는 경우) Deployments 탭에서 최신 커밋을 수동으로 **Redeploy** 하면
    `https://new-repository-one-rose.vercel.app/` 로 다시 접속할 수 있습니다.
 
-### ⚠️ 알아두어야 할 제약 - 관리자 페이지에서 저장이 안 될 수 있습니다
+### 5. 관리자 페이지 저장 기능이 Vercel에서도 동작하게 하려면 (Upstash Redis 연결)
 
-Vercel의 서버리스 함수는 배포된 코드 영역이 **읽기 전용**입니다. 지금
-`backend/src/data/projectsRepository.js` 는 `projects.json` 파일에 직접
-쓰는 방식이라, Vercel 운영 환경에서는 관리자 페이지의 **새 프로젝트 저장/수정/삭제**
-요청이 실패합니다. (포트폴리오 화면에서 기존 데이터를 **보여주는 것**은 정상 동작합니다 -
-읽기는 배포된 파일을 그대로 읽으면 되기 때문입니다.)
+Vercel의 서버리스 함수는 배포된 코드 영역이 **읽기 전용**이라, 로컬처럼 JSON
+파일에 직접 쓰는 방식은 Vercel에서 그대로 쓸 수 없습니다. (포트폴리오 화면에
+기존 데이터를 **보여주는 것**은 파일을 읽기만 하면 되므로 문제없이 동작합니다.)
 
-로컬 컴퓨터(`localhost:3000`)에서는 지금처럼 계속 정상적으로 프로젝트를
-추가/수정할 수 있습니다. Vercel에 배포된 사이트에서도 관리자 페이지로 실제
-데이터를 저장하려면, 실제 데이터베이스(Vercel Postgres, Vercel KV, Supabase 등)를
-연결해야 합니다 - `projectsRepository.js` 의 함수 내부만 바꾸면 되도록 이미
-구조를 그렇게 만들어뒀으니, 필요하시면 이어서 진행해드릴 수 있습니다.
+`backend/src/data/projectsRepository.js` 는 이제 두 가지 저장 방식을 자동으로
+구분해서 씁니다. 로컬에서는 지금처럼 파일을 그대로 쓰고, 아래 환경 변수가
+설정되어 있으면 자동으로 Redis를 사용합니다. Vercel 자체 KV/Postgres는
+단종되어 지금은 마켓플레이스 연동(Neon, Upstash 등)으로 제공되는데, 우리
+데이터는 프로젝트 목록 하나뿐인 단순한 구조라 Upstash(Redis)가 가장 간단하고,
+무료 제공량(하루 요청 수만 건)으로 개인 포트폴리오 용도에는 충분합니다.
+
+1. Vercel 프로젝트 페이지 → **Storage** 탭 → **Create Database** (또는 **Browse Marketplace**)
+2. **Upstash** 선택 → **Redis** 생성 (무료 플랜 선택)
+3. 생성한 데이터베이스를 이 프로젝트(New.Repository)에 **Connect**
+4. Vercel이 `KV_REST_API_URL`, `KV_REST_API_TOKEN` 환경 변수를 프로젝트에
+   자동으로 추가해줍니다. (변수 이름이 다르게 표시된다면 실제 이름을 확인해서
+   알려주세요 - 코드에서 인식하는 이름을 맞춰드리겠습니다.)
+5. **Deployments** 탭에서 최신 배포를 **Redeploy** 합니다.
+
+이후로는 Vercel에 배포된 관리자 페이지에서 저장한 프로젝트가 Redis에 저장되고,
+공개 사이트에도 정상적으로 반영됩니다. 로컬 개발 환경은 이 설정과 무관하게
+계속 파일 기반으로 동작합니다.

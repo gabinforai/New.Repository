@@ -19,6 +19,11 @@
 - 인증: `backend/src/services/auth.service.js` 가 bcrypt 비밀번호 검증 + JWT 세션 발급을 담당하고,
   `backend/src/middleware/requireAuth.js` 가 `/api/admin/*` 요청의 httpOnly 쿠키를 검증합니다.
   비밀번호 해시/세션 비밀키는 `backend/.env` (git에 커밋되지 않음)에만 있습니다.
+- 배포: 저장소 최상위 `vercel.json` 이 `backend/src/app.js` 를 서버리스 함수로 실행합니다.
+  Vercel은 배포 코드 영역이 읽기 전용이라 `projectsRepository.js` 는 `KV_REST_API_URL`/
+  `KV_REST_API_TOKEN` 환경 변수(Vercel 마켓플레이스의 Upstash Redis 연동 시 자동 주입)가
+  있으면 Redis를, 없으면(로컬) 파일을 자동으로 씁니다. 자세한 연결 방법은 README의
+  "Vercel 배포" 섹션 참고.
 
 ## 실행
 
