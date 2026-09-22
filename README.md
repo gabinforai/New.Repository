@@ -181,3 +181,48 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 `frontend/js/config.js` 의 `API_BASE_URL` 값을 백엔드 서버의 실제 주소로 바꾸고,
 `backend/.env` 의 `FRONTEND_ORIGIN` 값을 프론트엔드가 배포된 주소로 설정하면 됩니다(CORS 허용).
+
+## Vercel 배포
+
+저장소 최상위의 `vercel.json` 이 프론트엔드/백엔드를 하나의 배포로 묶어줍니다.
+`backend/src/app.js` 의 Express 앱을 서버리스 함수로 실행하고, 그 안에서 로컬과
+동일하게 `frontend/` 정적 파일도 함께 서빙합니다. 즉, 로컬(`node server.js`)과
+Vercel 운영 환경의 동작 방식이 동일합니다.
+
+### Vercel 프로젝트 설정에서 확인해야 할 것
+
+1. **Settings → Git**: 저장소가 `gabinforai/New.Repository` 로 연결되어 있고
+   Production Branch가 `main` 인지 확인합니다.
+2. **Settings → General → Root Directory**: 비어있거나(저장소 최상위) `.` 로
+   되어 있어야 합니다. `frontend`/`backend` 폴더로 나뉘기 전 설정이 남아있다면
+   반드시 저장소 최상위로 바꿔주세요. (여기가 어긋나 있으면 `vercel.json` 자체를
+   읽지 못해 배포가 실패하거나 예전 설정으로 빌드됩니다.)
+3. **Settings → Environment Variables**: 관리자 로그인에 필요한 값을 등록해야
+   합니다. `backend/.env` 는 git에 올라가지 않으므로 Vercel에는 직접 입력해야 합니다.
+
+   | 이름 | 값 |
+   | --- | --- |
+   | `ADMIN_PASSWORD_HASH` | 로컬 `backend/.env` 에 있는 현재 값을 그대로 복사 (또는 `npm run hash-password -- "새비밀번호"` 로 새로 생성) |
+   | `ADMIN_JWT_SECRET` | 로컬 `backend/.env` 에 있는 현재 값을 그대로 복사 (또는 새 임의 문자열 생성) |
+   | `ADMIN_SESSION_HOURS` | `8` (선택, 기본값과 동일) |
+
+   값을 등록한 뒤에는 반드시 **Redeploy** 를 눌러야 반영됩니다. (환경 변수는
+   재배포 시점에만 함수에 주입됩니다.)
+
+4. 위 설정을 마치면, 이번에 푸시한 커밋이 자동으로 다시 빌드되거나(깃 연동이
+   살아있는 경우) Deployments 탭에서 최신 커밋을 수동으로 **Redeploy** 하면
+   `https://new-repository-one-rose.vercel.app/` 로 다시 접속할 수 있습니다.
+
+### ⚠️ 알아두어야 할 제약 - 관리자 페이지에서 저장이 안 될 수 있습니다
+
+Vercel의 서버리스 함수는 배포된 코드 영역이 **읽기 전용**입니다. 지금
+`backend/src/data/projectsRepository.js` 는 `projects.json` 파일에 직접
+쓰는 방식이라, Vercel 운영 환경에서는 관리자 페이지의 **새 프로젝트 저장/수정/삭제**
+요청이 실패합니다. (포트폴리오 화면에서 기존 데이터를 **보여주는 것**은 정상 동작합니다 -
+읽기는 배포된 파일을 그대로 읽으면 되기 때문입니다.)
+
+로컬 컴퓨터(`localhost:3000`)에서는 지금처럼 계속 정상적으로 프로젝트를
+추가/수정할 수 있습니다. Vercel에 배포된 사이트에서도 관리자 페이지로 실제
+데이터를 저장하려면, 실제 데이터베이스(Vercel Postgres, Vercel KV, Supabase 등)를
+연결해야 합니다 - `projectsRepository.js` 의 함수 내부만 바꾸면 되도록 이미
+구조를 그렇게 만들어뒀으니, 필요하시면 이어서 진행해드릴 수 있습니다.
