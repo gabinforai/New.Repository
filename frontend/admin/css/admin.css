@@ -327,3 +327,5 @@ button.btn-outline {
   font-size: 0.85rem;
   line-height: 1.5;
 }
+
+.admin-toolbar { display: flex; justify-content: flex-end; margin-bottom: 16px; }

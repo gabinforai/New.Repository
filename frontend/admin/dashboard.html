@@ -11,13 +11,16 @@
   <header class="admin-header">
     <h1>프로젝트 관리</h1>
     <div class="admin-header-actions">
+      <a href="dashboard.html" class="btn btn-primary admin-tab" aria-current="page">프로젝트 관리</a>
       <a href="reservations.html" class="btn btn-outline admin-tab">예약하기 관리</a>
-      <a href="editor.html" class="btn btn-primary">+ 새 프로젝트</a>
       <button id="logoutBtn" class="btn btn-outline" type="button">로그아웃</button>
     </div>
   </header>
 
   <main class="admin-main">
+    <div class="admin-toolbar">
+      <a href="editor.html" class="btn btn-primary">+ 새 프로젝트</a>
+    </div>
     <div class="dup-warning" id="duplicateWarning" hidden></div>
     <p class="loading-text" id="listStatus">불러오는 중...</p>
     <div class="admin-project-list" id="projectList"></div>
