@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>찾아오는 길 | 이가빈</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/visit.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="logo">이가빈<span class="dot">.</span></a>
+      <a href="index.html" class="visit-back">← 포트폴리오로 돌아가기</a>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="section-inner visit-inner">
+      <p class="section-tag">LOCATION</p>
+      <h1 class="section-title">찾아오는 길</h1>
+
+      <!-- 주소 + 지도 -->
+      <section class="visit-card">
+        <div class="visit-address">
+          <span class="visit-pin" aria-hidden="true">📍</span>
+          <div>
+            <p class="visit-address-name">상명대학교 천안캠퍼스</p>
+            <p class="visit-address-detail">충남 천안시 동남구 상명대길 31, 상록관</p>
+          </div>
+        </div>
+        <div class="visit-map">
+          <iframe
+            title="상명대학교 천안캠퍼스 지도"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=127.1700%2C36.8280%2C127.1880%2C36.8380&amp;layer=mapnik&amp;marker=36.8330%2C127.1790"
+            loading="lazy"
+            referrerpolicy="no-referrer"></iframe>
+        </div>
+        <p class="visit-source">
+          지도 출처:
+          <a href="https://www.openstreetmap.org/?mlat=36.8330&amp;mlon=127.1790#map=16/36.8330/127.1790" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
+        </p>
+      </section>
+
+      <!-- 날씨 -->
+      <section class="visit-card">
+        <h2 class="visit-card-title">현재 날씨 <span class="visit-card-sub">상명대학교 천안캠퍼스 기준</span></h2>
+        <div class="weather" id="weather">
+          <p class="loading-text">날씨를 불러오는 중...</p>
+        </div>
+        <p class="visit-source">
+          날씨 출처:
+          <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>
+        </p>
+      </section>
+
+      <div class="visit-cta">
+        <a href="reserve.html" class="btn btn-primary visit-cta-btn" id="reserveBtn">방문 예약하기</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Lee Gabin. All rights reserved.</p>
+  </footer>
+
+  <script src="js/visit.js"></script>
+</body>
+</html>
