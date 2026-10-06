@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>예약하기 관리 | 이가빈 Portfolio</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/reservations.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header admin-header-wide">
+    <h1>예약하기 관리</h1>
+    <div class="admin-header-actions">
+      <a href="dashboard.html" class="btn btn-outline admin-tab">프로젝트 관리</a>
+      <a href="reservations.html" class="btn btn-primary admin-tab" aria-current="page">예약하기 관리</a>
+      <button id="logoutBtn" class="btn btn-outline" type="button">로그아웃</button>
+    </div>
+  </header>
+
+  <main class="admin-main admin-main-wide">
+    <p class="loading-text" id="listStatus">불러오는 중...</p>
+    <div class="resv-table-wrap" id="tableWrap" hidden>
+      <table class="resv-table">
+        <thead>
+          <tr>
+            <th>예약 번호</th>
+            <th>신청자/이메일</th>
+            <th>방문 희망 시간</th>
+            <th>방문 목적</th>
+            <th>처리 상태</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="resvBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="../js/config.js"></script>
+  <script src="js/admin-api.js"></script>
+  <script src="js/reservations.js"></script>
+</body>
+</html>

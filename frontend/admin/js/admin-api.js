@@ -67,6 +67,17 @@ const adminApi = {
       body: JSON.stringify(data),
     }).then(handleResponse),
 
+  listReservations: () =>
+    fetch(`${ADMIN_API_BASE}/reservations`, { credentials: 'include' }).then(handleResponse),
+
+  updateReservationStatus: (id, status) =>
+    fetch(`${ADMIN_API_BASE}/reservations/${encodeURIComponent(id)}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ status }),
+    }).then(handleResponse),
+
   deleteProject: (id) =>
     fetch(`${ADMIN_API_BASE}/projects/${encodeURIComponent(id)}`, {
       method: 'DELETE',

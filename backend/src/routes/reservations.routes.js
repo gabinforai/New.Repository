@@ -9,5 +9,6 @@ publicRouter.post('/', rateLimitReservation, controller.create);
 const adminRouter = express.Router();
 adminRouter.use(requireAuth);
 adminRouter.get('/', controller.listAdmin);
+adminRouter.patch('/:id/status', controller.updateStatus);
 
 module.exports = { publicRouter, adminRouter };

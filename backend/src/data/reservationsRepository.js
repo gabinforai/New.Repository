@@ -54,4 +54,13 @@ async function create(data) {
   return item;
 }
 
-module.exports = { getAll, create };
+async function update(id, patch) {
+  const items = await readAll();
+  const index = items.findIndex((item) => item.id === id);
+  if (index === -1) return null;
+  items[index] = { ...items[index], ...patch, id: items[index].id, updatedAt: new Date().toISOString() };
+  await writeAll(items);
+  return items[index];
+}
+
+module.exports = { getAll, create, update };
