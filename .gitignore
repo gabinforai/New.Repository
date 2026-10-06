@@ -6,3 +6,4 @@ node_modules/
 # OS
 Thumbs.db
 .DS_Store
+backend/src/data/reservations.json
