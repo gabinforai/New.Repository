@@ -327,3 +327,10 @@ button.btn-outline {
   font-size: 0.85rem;
   line-height: 1.5;
 }
+
+/* ---------- 활동 & 자격증 (읽기 전용 목록) ---------- */
+.admin-achieve { margin-top: 40px; }
+.admin-achieve h2 { font-size: 1.15rem; color: var(--green-900); margin: 0 0 14px; }
+.admin-achieve-sub { font-size: 0.8rem; font-weight: 500; color: var(--muted); margin-left: 8px; }
+.admin-achieve .admin-project-list { gap: 10px; }
+.admin-achieve .admin-project-card { padding: 14px 20px; }
