@@ -1,5 +1,32 @@
 // 방문 예약 업무 로직: 입력값 검증 후 저장소에 저장
+const crypto = require('crypto');
 const repository = require('../data/reservationsRepository');
+
+// 처리 상태: 접수(사용자가 요청한 그대로) / 확정 / 변경 요청 / 취소
+const STATUSES = ['received', 'confirmed', 'change_requested', 'canceled'];
+
+// 예약 번호 = 방문 희망 날짜·시간 + 예약자(이름+이메일) 해시 4자리
+//   예) R20261008-1030-A3F9
+// 같은 사람이 여러 번 방문해도 희망 시간이 다르면 번호가 달라집니다.
+// TODO(추후): 방문 희망 시간이 겹치지 않도록 접수 시 중복 시간 검사 필요
+function makeReservationNo({ name, email, date, time }) {
+  const who = crypto
+    .createHash('sha1')
+    .update(String(name).trim().toLowerCase() + '|' + String(email).trim().toLowerCase())
+    .digest('hex')
+    .slice(0, 4)
+    .toUpperCase();
+  return 'R' + date.replace(/-/g, '') + '-' + time.replace(':', '') + '-' + who;
+}
+
+// 예전 데이터(status: 'pending', 번호 없음)도 같은 형태로 보이게 정리
+function normalize(item) {
+  return {
+    ...item,
+    reservationNo: item.reservationNo || makeReservationNo(item),
+    status: STATUSES.includes(item.status) ? item.status : 'received',
+  };
+}
 
 class ValidationError extends Error {
   constructor(validationErrors) {
@@ -50,12 +77,25 @@ function validate(input) {
 
 async function createReservation(input) {
   const data = validate(input || {});
-  return repository.create({ ...data, consent: true, status: 'pending' });
+  return repository.create({
+    ...data,
+    reservationNo: makeReservationNo(data),
+    consent: true,
+    status: 'received',
+  });
 }
 
 async function listReservations() {
   const items = await repository.getAll();
-  return items.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return items.map(normalize).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-module.exports = { createReservation, listReservations, ValidationError };
+async function updateStatus(id, status) {
+  if (!STATUSES.includes(status)) {
+    throw new ValidationError({ status: '올바르지 않은 처리 상태입니다.' });
+  }
+  const item = await repository.update(id, { status });
+  return item ? normalize(item) : null;
+}
+
+module.exports = { createReservation, listReservations, updateStatus, ValidationError };
