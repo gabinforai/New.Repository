@@ -1,0 +1,94 @@
+/* 찾아오는 길 / 방문 예약 페이지 */
+.visit-back{
+  color: var(--green-700);
+  font-weight:600;
+  font-size:0.9rem;
+}
+.visit-back:hover{ text-decoration: underline; }
+
+.visit-inner{ max-width: 760px; }
+.visit-inner .section-title{ margin-bottom: 28px; }
+
+.visit-card{
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-bottom: 22px;
+}
+.visit-card-title{
+  margin:0 0 16px;
+  font-size:1.15rem;
+  color: var(--green-900);
+}
+.visit-card-sub{
+  font-size:0.8rem;
+  font-weight:500;
+  color: var(--muted);
+  margin-left:6px;
+}
+
+.visit-address{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:16px;
+}
+.visit-pin{ font-size:1.5rem; line-height:1.2; }
+.visit-address-name{ margin:0; font-weight:800; color: var(--green-900); }
+.visit-address-detail{ margin:2px 0 0; color: var(--ink); }
+
+.visit-map{
+  border-radius: 12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  aspect-ratio: 16 / 10;
+}
+.visit-map iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  display:block;
+}
+
+.visit-source{
+  margin:10px 0 0;
+  font-size:0.72rem;
+  color: var(--muted);
+  text-align:right;
+}
+.visit-source a{ text-decoration: underline; }
+
+.weather{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap:12px;
+}
+.weather-main{
+  grid-column: 1 / -1;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.weather-icon{ font-size:2.6rem; line-height:1; }
+.weather-temp{ font-size:2.2rem; font-weight:800; color: var(--green-900); line-height:1.1; }
+.weather-desc{ color: var(--muted); font-size:0.95rem; }
+.weather-item{
+  background: var(--green-50);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+}
+.weather-item-label{ display:block; font-size:0.78rem; color: var(--muted); }
+.weather-item-value{ font-weight:700; color: var(--green-900); }
+.weather-time{ grid-column: 1 / -1; font-size:0.75rem; color: var(--muted); margin:0; }
+.weather-error{ color: var(--muted); margin:0; }
+
+.visit-cta{ text-align:center; margin-top:34px; }
+.visit-cta-btn{ padding: 15px 44px; font-size:1.05rem; }
+
+@media (max-width: 600px){
+  .visit-card{ padding:16px; }
+  .visit-map{ aspect-ratio: 4 / 3; }
+}
