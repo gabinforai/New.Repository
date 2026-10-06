@@ -75,14 +75,49 @@ function validate(input) {
   return { name, email, purpose, date, time };
 }
 
+class ConflictError extends Error {}
+
+// 같은 날짜·시간에 예약이 겹치지 않게 하기 위한 직렬화 잠금.
+// "읽기 → 겹침 검사 → 저장"이 동시에 두 번 실행되면 둘 다 검사를 통과할 수 있으므로,
+// 쓰기 작업을 한 줄로 세워서 하나씩만 처리합니다. (서버 1대 기준. 서버를 여러 대로
+// 늘리면 DB의 유니크 제약/원자적 연산으로 바꿔야 합니다.)
+let writeQueue = Promise.resolve();
+function withLock(task) {
+  const run = writeQueue.then(task, task);
+  writeQueue = run.catch(() => {});
+  return run;
+}
+
+// 취소된 예약은 시간을 차지하지 않습니다. 그 외(접수/확정/변경 요청)는 해당 시간을 차지합니다.
+function occupiesSlot(item) {
+  return normalize(item).status !== 'canceled';
+}
+
+function slotTaken(items, date, time, exceptId) {
+  return items.some((it) => it.id !== exceptId && it.date === date && it.time === time && occupiesSlot(it));
+}
+
 async function createReservation(input) {
   const data = validate(input || {});
-  return repository.create({
-    ...data,
-    reservationNo: makeReservationNo(data),
-    consent: true,
-    status: 'received',
+  return withLock(async () => {
+    const items = await repository.getAll();
+    if (slotTaken(items, data.date, data.time)) {
+      throw new ConflictError('이미 예약이 완료된 날짜·시간입니다. 다른 시간을 선택해주세요.');
+    }
+    // 같은 사람이 취소 후 같은 시간을 다시 예약하면 번호가 같아질 수 있어 뒤에 순번을 붙입니다.
+    let reservationNo = makeReservationNo(data);
+    const used = new Set(items.map((it) => normalize(it).reservationNo));
+    for (let n = 2; used.has(reservationNo); n += 1) {
+      reservationNo = makeReservationNo(data) + '-' + n;
+    }
+    return repository.create({ ...data, reservationNo, consent: true, status: 'received' });
   });
+}
+
+// 예약 페이지에 공개하는 "이미 찼는 시간" 목록 (개인정보 없이 날짜·시간만)
+async function listBookedSlots() {
+  const items = await repository.getAll();
+  return items.filter(occupiesSlot).map((it) => ({ date: it.date, time: it.time }));
 }
 
 async function listReservations() {
@@ -94,8 +129,24 @@ async function updateStatus(id, status) {
   if (!STATUSES.includes(status)) {
     throw new ValidationError({ status: '올바르지 않은 처리 상태입니다.' });
   }
-  const item = await repository.update(id, { status });
-  return item ? normalize(item) : null;
+  return withLock(async () => {
+    const items = await repository.getAll();
+    const current = items.find((it) => it.id === id);
+    if (!current) return null;
+    // 취소된 예약을 되살릴 때, 그 시간에 이미 다른 예약이 들어왔다면 막습니다.
+    if (status !== 'canceled' && slotTaken(items, current.date, current.time, id)) {
+      throw new ConflictError('같은 날짜·시간에 이미 다른 예약이 있어 이 상태로 바꿀 수 없습니다.');
+    }
+    const item = await repository.update(id, { status });
+    return item ? normalize(item) : null;
+  });
 }
 
-module.exports = { createReservation, listReservations, updateStatus, ValidationError };
+module.exports = {
+  createReservation,
+  listBookedSlots,
+  listReservations,
+  updateStatus,
+  ValidationError,
+  ConflictError,
+};

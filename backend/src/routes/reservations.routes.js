@@ -4,6 +4,7 @@ const requireAuth = require('../middleware/requireAuth');
 const rateLimitReservation = require('../middleware/rateLimitReservation');
 
 const publicRouter = express.Router();
+publicRouter.get('/booked', controller.booked);
 publicRouter.post('/', rateLimitReservation, controller.create);
 
 const adminRouter = express.Router();

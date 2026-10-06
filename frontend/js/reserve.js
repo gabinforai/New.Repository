@@ -31,12 +31,49 @@
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function ymd(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
 
-  // ---- 시간 드롭다운: 10:00 ~ 22:00, 30분 단위 ----
+  // ---- 시간 드롭다운: 10:00 ~ 22:00, 30분 단위 (이미 예약된 시간은 "(완료)" 표시 + 선택 불가) ----
+  var ALL_TIMES = [];
   for (var mins = 10 * 60; mins <= 22 * 60; mins += 30) {
-    var opt = document.createElement('option');
-    opt.value = opt.textContent = pad(Math.floor(mins / 60)) + ':' + pad(mins % 60);
-    timeSelect.appendChild(opt);
+    ALL_TIMES.push(pad(Math.floor(mins / 60)) + ':' + pad(mins % 60));
   }
+  var booked = {};   // { 'YYYY-MM-DD': { '10:30': true } }
+
+  function isBooked(date, time) { return !!(booked[date] && booked[date][time]); }
+  function isDateFull(date) {
+    return !!booked[date] && ALL_TIMES.every(function (t) { return booked[date][t]; });
+  }
+
+  function rebuildTimes() {
+    var prev = timeSelect.value;
+    timeSelect.innerHTML = '<option value="">시간을 선택하세요</option>';
+    ALL_TIMES.forEach(function (t) {
+      var opt = document.createElement('option');
+      opt.value = t;
+      var taken = selected && isBooked(selected, t);
+      opt.textContent = taken ? t + ' (완료)' : t;
+      opt.disabled = !!taken;
+      timeSelect.appendChild(opt);
+    });
+    // 이전에 고른 시간이 아직 가능하면 유지, 아니면 초기화
+    timeSelect.value = prev && !(selected && isBooked(selected, prev)) ? prev : '';
+  }
+
+  // 예약 현황(날짜·시간만)을 서버에서 받아옵니다. 실패해도 서버가 접수 시 한 번 더 검사합니다.
+  function loadBooked() {
+    return fetch(API_BASE_URL + '/reservations/booked')
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (list) {
+        booked = {};
+        list.forEach(function (s) { (booked[s.date] = booked[s.date] || {})[s.time] = true; });
+        if (selected && isDateFull(selected)) { selected = ''; dateBox.value = ''; }
+        rebuildTimes();
+        render();
+        update();
+      })
+      .catch(function () {});
+  }
+
+  rebuildTimes();
 
   // ---- 공휴일 불러오기 (Nager.Date, 연도별 1회) ----
   function loadHolidays(year) {
@@ -67,6 +104,7 @@
     if (dow === 0 || dow === 6) return false;
     if (date <= today) return false;           // 오늘 이전·당일은 제외(최소 하루 전 예약)
     if (holidays[ymd(y, m, d)]) return false;
+    if (isDateFull(ymd(y, m, d))) return false;  // 모든 시간이 예약된 날
     var limit = new Date(today.getFullYear(), today.getMonth() + MAX_MONTHS_AHEAD + 1, 0);
     return date <= limit;
   }
@@ -118,6 +156,7 @@
     var p = selected.split('-');
     var dow = DOW[new Date(+p[0], +p[1] - 1, +p[2]).getDay()];
     dateBox.value = p[0] + '년 ' + (+p[1]) + '월 ' + (+p[2]) + '일 (' + dow + ')';
+    rebuildTimes();
     render();
     update();
   });
@@ -203,44 +242,48 @@
 
     var v = values();
 
-    // 1) Formspree: 예약 내용을 운영자 이메일로 전달 (이 요청이 성공해야 접수 완료로 처리)
-    var sendMail = fetch(FORMSPREE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        _subject: '[방문 예약] ' + v.name + ' - ' + v.date + ' ' + v.time,
-        name: v.name,
-        email: v.email, // Formspree가 이 값을 답장(Reply-To) 주소로 사용합니다
-        date: v.date,
-        time: v.time,
-        purpose: v.purpose,
-        consent: '동의함',
-      }),
-    }).then(function (res) {
-      if (res.ok) return;
-      return res.json().catch(function () { return {}; }).then(function (body) {
-        var msg = body.errors && body.errors.length
-          ? body.errors.map(function (e) { return e.message; }).join(' ')
-          : '예약 접수에 실패했습니다.';
-        throw new Error(msg);
-      });
-    });
+    function sendMail() {
+      return fetch(FORMSPREE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: '[방문 예약] ' + v.name + ' - ' + v.date + ' ' + v.time,
+          name: v.name,
+          email: v.email, // Formspree가 이 값을 답장(Reply-To) 주소로 사용합니다
+          date: v.date,
+          time: v.time,
+          purpose: v.purpose,
+          consent: '동의함',
+        }),
+      }).then(function (res) { return res.ok; }, function () { return false; });
+    }
 
-    // 2) 백엔드에도 함께 저장 (보관용). 실패해도 이메일 전달이 성공했다면 접수는 완료로 봅니다.
+    // 1) 백엔드에 먼저 저장: 같은 날짜·시간이 이미 있으면 여기서 거절(409)되어 메일도 보내지 않습니다.
+    // 2) 저장에 성공한 경우에만 Formspree로 운영자 이메일 전달.
     fetch(API_BASE_URL + '/reservations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(v),
-    }).catch(function () {});
-
-    sendMail
-      .then(function () {
+    })
+      .then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          if (!res.ok) {
+            var e = new Error(body.error || '예약 접수에 실패했습니다.');
+            e.conflict = res.status === 409;
+            throw e;
+          }
+          return sendMail();
+        });
+      })
+      .then(function (mailOk) {
+        $('doneMailWarn').hidden = mailOk;
         modal.hidden = true;
         form.hidden = true;
         $('reserveDone').hidden = false;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       })
       .catch(function (err) {
+        if (err.conflict) { loadBooked(); }   // 최신 예약 현황으로 갱신(해당 시간은 (완료)로 바뀜)
         errEl.textContent = err instanceof TypeError
           ? '서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.'
           : err.message;
@@ -253,6 +296,7 @@
   });
 
   loadHolidays(viewYear);
+  loadBooked();
   render();
   update();
 })();
