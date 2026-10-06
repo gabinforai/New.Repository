@@ -75,16 +75,16 @@ function renderSummary(counts) {
 }
 
 function render() {
+  // 예약이 0건이어도 요약과 필터는 항상 보여줍니다.
+  renderSummary(countByStatus(allItems));
+  summaryBox.hidden = false;
+
   if (!allItems.length) {
     statusEl.textContent = '아직 접수된 예약이 없습니다.';
     statusEl.hidden = false;
-    summaryBox.hidden = true;
     tableWrap.hidden = true;
     return;
   }
-
-  renderSummary(countByStatus(allItems));
-  summaryBox.hidden = false;
 
   const visible = currentFilter === 'all' ? allItems : allItems.filter((item) => item.status === currentFilter);
   if (!visible.length) {
