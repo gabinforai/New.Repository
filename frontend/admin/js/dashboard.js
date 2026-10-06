@@ -176,6 +176,35 @@ async function load() {
   }
 }
 
+// ---------- 활동 & 자격증 (메인 페이지에 표시되는 항목, 읽기 전용) ----------
+async function loadAchievements() {
+  const statusBox = document.getElementById('achieveStatus');
+  const listBox = document.getElementById('achieveList');
+  try {
+    const res = await fetch(`${API_BASE_URL}/achievements`);
+    if (!res.ok) throw new Error('status ' + res.status);
+    const items = await res.json();
+    if (!items.length) {
+      statusBox.textContent = '표시 중인 활동 & 자격증 항목이 없습니다.';
+      return;
+    }
+    statusBox.hidden = true;
+    listBox.innerHTML = items
+      .map(
+        (item) => `
+      <div class="admin-project-card">
+        <div class="admin-project-info">
+          <h3>${escapeHtml(item.prefix)} <strong>${escapeHtml(item.highlight)}</strong></h3>
+          <p class="admin-project-meta">${escapeHtml(item.year)}</p>
+        </div>
+      </div>`
+      )
+      .join('');
+  } catch (err) {
+    statusBox.textContent = '활동 & 자격증 목록을 불러오지 못했습니다.';
+  }
+}
+
 logoutBtn.addEventListener('click', async () => {
   try {
     await adminApi.logout();
@@ -185,3 +214,4 @@ logoutBtn.addEventListener('click', async () => {
 });
 
 load();
+loadAchievements();
