@@ -8,6 +8,7 @@ const portfolioRoutes = require('./routes/portfolio.routes');
 const projectsRoutes = require('./routes/projects.routes');
 const authRoutes = require('./routes/auth.routes');
 const adminProjectsRoutes = require('./routes/admin.projects.routes');
+const reservationsRoutes = require('./routes/reservations.routes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -51,6 +52,8 @@ app.use(['/admin', '/api/admin'], (req, res, next) => {
 // 이곳에 app.use('/api/xxx', xxxRoutes); 형태로 라우터만 추가하면 됩니다.
 app.use('/api', portfolioRoutes);
 app.use('/api/projects', projectsRoutes); // 공개용: 공개(published) 프로젝트만
+app.use('/api/reservations', reservationsRoutes.publicRouter); // 방문 예약 접수 (공개)
+app.use('/api/admin/reservations', reservationsRoutes.adminRouter); // 예약 목록 조회 (로그인 필요)
 app.use('/api/admin', authRoutes); // 로그인 / 로그아웃 / 세션 확인
 app.use('/api/admin/projects', adminProjectsRoutes); // 관리자 전용 프로젝트 CRUD (로그인 필요)
 

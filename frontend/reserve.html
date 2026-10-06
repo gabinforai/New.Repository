@@ -6,6 +6,7 @@
 <title>방문 예약 | 이가빈</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/visit.css">
+<link rel="stylesheet" href="css/reserve.css">
 </head>
 <body>
 
@@ -17,16 +18,112 @@
   </header>
 
   <main class="section">
-    <div class="section-inner visit-inner">
+    <div class="section-inner reserve-inner">
       <p class="section-tag">RESERVATION</p>
       <h1 class="section-title">방문 예약</h1>
-      <!-- TODO: 예약 내용은 피드백 후 구성 -->
+
+      <form id="reserveForm" class="reserve-form" novalidate>
+        <div class="reserve-grid">
+
+          <!-- 왼쪽: 캘린더 + 날짜 + 시간 -->
+          <section class="visit-card reserve-col">
+            <h2 class="visit-card-title">방문 날짜 · 시간</h2>
+
+            <div class="cal" id="calendar">
+              <div class="cal-head">
+                <button type="button" class="cal-nav" id="calPrev" aria-label="이전 달">‹</button>
+                <strong id="calTitle"></strong>
+                <button type="button" class="cal-nav" id="calNext" aria-label="다음 달">›</button>
+              </div>
+              <div class="cal-week">
+                <span class="cal-wd cal-wd-sun">일</span><span class="cal-wd">월</span><span class="cal-wd">화</span><span class="cal-wd">수</span><span class="cal-wd">목</span><span class="cal-wd">금</span><span class="cal-wd cal-wd-sat">토</span>
+              </div>
+              <div class="cal-days" id="calDays"></div>
+            </div>
+            <p class="reserve-hint" id="calHint">평일만 선택할 수 있어요. 주말·공휴일은 선택할 수 없습니다.</p>
+
+            <label class="field">
+              <span class="field-label">선택한 날짜 <em>*</em></span>
+              <input type="text" id="dateBox" class="field-input" readonly placeholder="캘린더에서 날짜를 선택하세요">
+            </label>
+
+            <label class="field">
+              <span class="field-label">희망 시간 <em>*</em></span>
+              <select id="timeSelect" class="field-input">
+                <option value="">시간을 선택하세요</option>
+              </select>
+            </label>
+          </section>
+
+          <!-- 오른쪽: 이름 / 이메일 / 방문 목적 -->
+          <section class="visit-card reserve-col">
+            <h2 class="visit-card-title">예약자 정보</h2>
+
+            <div class="field">
+              <label class="field-label" for="nameInput">이름 <em>*</em></label>
+              <input type="text" id="nameInput" class="field-input" maxlength="50" autocomplete="name" placeholder="홍길동">
+              <p class="field-error" id="nameError" hidden>이름을 입력해주세요.</p>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="emailInput">답장받을 이메일 <em>*</em></label>
+              <input type="email" id="emailInput" class="field-input" maxlength="254" autocomplete="email" placeholder="example@email.com">
+              <p class="field-error" id="emailError" hidden>잘못 입력했습니다. 이메일 형식(example@email.com)으로 입력해주세요.</p>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="purposeInput">방문 목적 <em>*</em></label>
+              <textarea id="purposeInput" class="field-input field-textarea" maxlength="2000" rows="8" placeholder="방문 목적을 자세히 적어주세요."></textarea>
+              <p class="field-count"><span id="purposeCount">0</span> / 2000</p>
+              <p class="field-error" id="purposeError" hidden>방문 목적을 입력해주세요.</p>
+            </div>
+          </section>
+        </div>
+
+        <div class="reserve-submit">
+          <label class="consent">
+            <input type="checkbox" id="consentBox">
+            <span>입력 정보를 예약 상담 목적으로 운영자에게 전달하는 것이 동의합니다.</span>
+          </label>
+          <button type="submit" class="btn btn-primary reserve-btn" id="submitBtn" disabled>예약하기</button>
+        </div>
+        <p class="visit-source">공휴일 정보 출처: <a href="https://date.nager.at/" target="_blank" rel="noopener">Nager.Date</a></p>
+      </form>
+
+      <!-- 접수 완료 화면 -->
+      <section class="visit-card reserve-done" id="reserveDone" hidden>
+        <p class="reserve-done-icon" aria-hidden="true">✅</p>
+        <h2>예약이 접수되었습니다</h2>
+        <p>확인 후 입력하신 이메일로 답장드릴게요.</p>
+        <a href="index.html" class="btn btn-outline">포트폴리오로 돌아가기</a>
+      </section>
     </div>
   </main>
+
+  <!-- 최종 검토 팝업 -->
+  <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" hidden>
+    <div class="modal-box">
+      <h2 id="confirmTitle">예약 내용을 확인해주세요</h2>
+      <dl class="confirm-list">
+        <dt>방문 날짜</dt><dd id="cfDate"></dd>
+        <dt>희망 시간</dt><dd id="cfTime"></dd>
+        <dt>이름</dt><dd id="cfName"></dd>
+        <dt>이메일</dt><dd id="cfEmail"></dd>
+        <dt>방문 목적</dt><dd id="cfPurpose" class="confirm-purpose"></dd>
+      </dl>
+      <p class="field-error" id="submitError" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" id="cancelBtn">수정하기</button>
+        <button type="button" class="btn btn-primary" id="confirmBtn">예약하기</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <p>&copy; 2026 Lee Gabin. All rights reserved.</p>
   </footer>
 
+  <script src="js/config.js"></script>
+  <script src="js/reserve.js"></script>
 </body>
 </html>
