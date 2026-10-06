@@ -1,5 +1,7 @@
 // 방문 예약 페이지: 캘린더(평일/공휴일 제외) + 입력 검증 + 최종 검토 팝업 + 접수
 (function () {
+  // Formspree 폼 주소 (받는 이메일은 Formspree 대시보드의 폼 설정에서 지정합니다)
+  var FORMSPREE_URL = 'https://formspree.io/f/xgaovvkv';
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   var MAX_MONTHS_AHEAD = 6;
   var DOW = ['일', '월', '화', '수', '목', '금', '토'];
@@ -199,17 +201,39 @@
     btn.textContent = '접수 중...';
     errEl.hidden = true;
 
+    var v = values();
+
+    // 1) Formspree: 예약 내용을 운영자 이메일로 전달 (이 요청이 성공해야 접수 완료로 처리)
+    var sendMail = fetch(FORMSPREE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: '[방문 예약] ' + v.name + ' - ' + v.date + ' ' + v.time,
+        name: v.name,
+        email: v.email, // Formspree가 이 값을 답장(Reply-To) 주소로 사용합니다
+        date: v.date,
+        time: v.time,
+        purpose: v.purpose,
+        consent: '동의함',
+      }),
+    }).then(function (res) {
+      if (res.ok) return;
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        var msg = body.errors && body.errors.length
+          ? body.errors.map(function (e) { return e.message; }).join(' ')
+          : '예약 접수에 실패했습니다.';
+        throw new Error(msg);
+      });
+    });
+
+    // 2) 백엔드에도 함께 저장 (보관용). 실패해도 이메일 전달이 성공했다면 접수는 완료로 봅니다.
     fetch(API_BASE_URL + '/reservations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values()),
-    })
-      .then(function (res) {
-        return res.json().catch(function () { return {}; }).then(function (body) {
-          if (!res.ok) throw new Error(body.error || '예약 접수에 실패했습니다.');
-          return body;
-        });
-      })
+      body: JSON.stringify(v),
+    }).catch(function () {});
+
+    sendMail
       .then(function () {
         modal.hidden = true;
         form.hidden = true;
