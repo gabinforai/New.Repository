@@ -10,6 +10,13 @@ const STATUS_LABELS = {
   canceled: '취소',
 };
 
+const summaryBox = document.getElementById('summaryBox');
+const summaryText = document.getElementById('summaryText');
+const filtersEl = document.getElementById('filters');
+
+let allItems = [];
+let currentFilter = 'all'; // 'all' 또는 STATUS_LABELS 의 키
+
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(
@@ -43,16 +50,53 @@ function renderRow(item) {
     </tr>`;
 }
 
-function render(items) {
-  if (!items.length) {
+function countByStatus(items) {
+  const counts = { all: items.length };
+  Object.keys(STATUS_LABELS).forEach((key) => {
+    counts[key] = items.filter((item) => item.status === key).length;
+  });
+  return counts;
+}
+
+function renderSummary(counts) {
+  summaryText.textContent =
+    `전체 ${counts.all}건 / ` +
+    Object.entries(STATUS_LABELS)
+      .map(([key, label]) => `${label} ${counts[key]}건`)
+      .join(' / ');
+
+  const filters = [['all', '전체'], ...Object.entries(STATUS_LABELS)];
+  filtersEl.innerHTML = filters
+    .map(
+      ([key, label]) =>
+        `<button type="button" class="resv-filter${key === currentFilter ? ' is-active' : ''}" data-filter="${key}" aria-pressed="${key === currentFilter}">${label} <span class="resv-filter-count">${counts[key]}</span></button>`
+    )
+    .join('');
+}
+
+function render() {
+  if (!allItems.length) {
     statusEl.textContent = '아직 접수된 예약이 없습니다.';
+    statusEl.hidden = false;
+    summaryBox.hidden = true;
+    tableWrap.hidden = true;
+    return;
+  }
+
+  renderSummary(countByStatus(allItems));
+  summaryBox.hidden = false;
+
+  const visible = currentFilter === 'all' ? allItems : allItems.filter((item) => item.status === currentFilter);
+  if (!visible.length) {
+    statusEl.textContent = `'${STATUS_LABELS[currentFilter]}' 상태의 예약이 없습니다.`;
     statusEl.hidden = false;
     tableWrap.hidden = true;
     return;
   }
+
   statusEl.hidden = true;
   tableWrap.hidden = false;
-  bodyEl.innerHTML = items.map(renderRow).join('');
+  bodyEl.innerHTML = visible.map(renderRow).join('');
 }
 
 function handleError(err) {
@@ -65,7 +109,8 @@ function handleError(err) {
 
 async function load() {
   try {
-    render(await adminApi.listReservations());
+    allItems = await adminApi.listReservations();
+    render();
   } catch (err) {
     if (err.status === 401) {
       window.location.href = 'login.html';
@@ -75,6 +120,13 @@ async function load() {
     statusEl.hidden = false;
   }
 }
+
+filtersEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.resv-filter');
+  if (!btn) return;
+  currentFilter = btn.dataset.filter;
+  render();
+});
 
 bodyEl.addEventListener('click', async (e) => {
   const btn = e.target.closest('.resv-btn');
