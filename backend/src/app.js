@@ -15,9 +15,24 @@ const app = express();
 // credentials(쿠키)를 주고받으려면 origin을 '*'로 둘 수 없으므로,
 // 요청의 Origin을 그대로 허용해주는 방식으로 설정합니다.
 // (운영 환경에서는 .env의 FRONTEND_ORIGIN을 실제 프론트엔드 주소로 고정하는 것을 권장합니다.)
+// 이 프로젝트의 Vercel 프리뷰 배포(브랜치/커밋별 주소)도 허용합니다.
+//   예) https://new-repository-56dnqzkwh-gabin10.vercel.app
+//       https://new-repository-git-feature-visit-reservation-gabin10.vercel.app
+const VERCEL_PREVIEW_RE = /^https:\/\/new-repository-[a-z0-9-]+-gabin10\.vercel\.app$/;
+
+function isAllowedOrigin(origin, callback) {
+  if (config.frontendOrigin === '*') return callback(null, true);
+  // Origin 헤더가 없는 요청(서버 간 호출, curl 등)은 CORS 대상이 아니므로 통과
+  if (!origin) return callback(null, true);
+  if (origin === config.frontendOrigin || VERCEL_PREVIEW_RE.test(origin)) {
+    return callback(null, true);
+  }
+  return callback(null, false);
+}
+
 app.use(
   cors({
-    origin: config.frontendOrigin === '*' ? true : config.frontendOrigin,
+    origin: isAllowedOrigin,
     credentials: true,
   })
 );
