@@ -82,6 +82,28 @@ async function main() {
     );
   } else console.log('- contact_links: 이미 데이터가 있어 건너뜀');
 
+  // 프로젝트: projects.json 에 데이터가 있을 때만 이관 (id·작성/수정 시각도 그대로 보존)
+  const projects = readJson('projects.json');
+  if (projects.length === 0) {
+    console.log('- projects: projects.json 이 비어 있어 옮길 데이터 없음');
+  } else if (await isEmpty('projects')) {
+    await insert(
+      'projects',
+      projects.map((p) => ({
+        id: p.id,
+        title: p.title ?? '',
+        role: p.role ?? '',
+        description: p.description ?? '',
+        date_text: p.date ?? '',
+        participants: p.participants ?? null,
+        notes: p.notes ?? '',
+        status: p.status === 'published' ? 'published' : 'draft',
+        created_at: p.createdAt,
+        updated_at: p.updatedAt,
+      }))
+    );
+  } else console.log('- projects: 이미 데이터가 있어 건너뜀');
+
   console.log('\n완료');
 }
 
