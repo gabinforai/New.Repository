@@ -7,7 +7,8 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "hash-password": "node scripts/hash-password.js",
-    "check-db": "node scripts/check-supabase.js"
+    "check-db": "node scripts/check-supabase.js",
+    "seed-db": "node scripts/seed-supabase.js"
   },
   "license": "ISC",
   "dependencies": {

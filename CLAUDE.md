@@ -24,9 +24,14 @@
   도메인이라 `frontend/js/config.js` 가 접속 주소를 보고 자동으로 Render 백엔드
   주소를 쓰도록 되어 있고, 로그인 쿠키도 운영 환경(`NODE_ENV=production`)에서는
   `sameSite:'none' + secure:true` 로 cross-site 쿠키를 허용합니다(로컬은 그대로
-  `lax`/`secure:false`). `projectsRepository.js` 는 `KV_REST_API_URL`/
-  `KV_REST_API_TOKEN` 환경 변수(Upstash Redis 등)가 있으면 Redis를, 없으면
-  파일을 자동으로 씁니다. 자세한 연결 방법은 README의 "배포 구조" 섹션 참고.
+  `lax`/`secure:false`). 자세한 연결 방법은 README의 "배포 구조" 섹션 참고.
+- 데이터베이스: 모든 데이터는 Supabase(PostgreSQL)에 저장됩니다. 서버만
+  `backend/src/config/supabase.js` 로 접속하고(`SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`,
+  `.env` 와 Render 환경 변수에만 둠), 프론트엔드는 키를 갖지 않습니다.
+  표 구조·RLS·권한은 `backend/db/schema.sql`, 옛 JSON 이관은 `npm run seed-db`,
+  연결 점검은 `npm run check-db`. 목록형 표는 `is_public`, projects 는 `status`,
+  reservations 는 항상 비공개입니다. `backend/src/data/*.json` 은 이관용 원본일 뿐
+  서버는 더 이상 읽지 않습니다.
 
 ## 실행
 

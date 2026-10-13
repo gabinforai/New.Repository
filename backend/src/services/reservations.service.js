@@ -88,6 +88,15 @@ function withLock(task) {
   return run;
 }
 
+// DB 의 유니크 인덱스(uq_active_slot)가 같은 날짜·시간 중복을 막으면(오류 코드 23505),
+// 위의 메모리 검사를 통과한 동시 요청이라도 같은 "이미 예약됨" 응답(409)으로 바꿔 줍니다.
+function asConflictIfSlotTaken(err) {
+  if (err && err.code === '23505') {
+    return new ConflictError('이미 예약이 완료된 날짜·시간입니다. 다른 시간을 선택해주세요.');
+  }
+  return err;
+}
+
 // 취소된 예약은 시간을 차지하지 않습니다. 그 외(접수/확정/변경 요청)는 해당 시간을 차지합니다.
 function occupiesSlot(item) {
   return normalize(item).status !== 'canceled';
@@ -110,7 +119,11 @@ async function createReservation(input) {
     for (let n = 2; used.has(reservationNo); n += 1) {
       reservationNo = makeReservationNo(data) + '-' + n;
     }
-    return repository.create({ ...data, reservationNo, consent: true, status: 'received' });
+    try {
+      return await repository.create({ ...data, reservationNo, consent: true, status: 'received' });
+    } catch (err) {
+      throw asConflictIfSlotTaken(err);
+    }
   });
 }
 
@@ -137,7 +150,12 @@ async function updateStatus(id, status) {
     if (status !== 'canceled' && slotTaken(items, current.date, current.time, id)) {
       throw new ConflictError('같은 날짜·시간에 이미 다른 예약이 있어 이 상태로 바꿀 수 없습니다.');
     }
-    const item = await repository.update(id, { status });
+    let item;
+    try {
+      item = await repository.update(id, { status });
+    } catch (err) {
+      throw asConflictIfSlotTaken(err);
+    }
     return item ? normalize(item) : null;
   });
 }

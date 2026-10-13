@@ -1,66 +1,57 @@
 /**
  * 방문 예약 저장소 계층 (Repository Layer)
- * projectsRepository.js 와 같은 방식입니다.
- * - 기본: backend/src/data/reservations.json 파일 (개인정보가 들어 있어 git에는 올라가지 않습니다)
- * - KV_REST_API_URL/TOKEN 환경 변수가 있으면 Upstash Redis
+ * ---------------------------------------------------------------
+ * Supabase 의 reservations 표를 읽고 씁니다. 이름·이메일이 들어 있어 방문자에게는
+ * 공개되지 않으며(RLS), 서버(service_role)만 접근합니다.
+ * 같은 날짜·시간 중복 예약은 DB 의 유니크 인덱스(uq_active_slot)가 최종적으로 막고,
+ * 그때 던져지는 오류(code 23505)는 service 가 ConflictError 로 바꿉니다.
+ * ---------------------------------------------------------------
  */
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const db = require('../config/supabase');
+const { unwrap, isUuid } = require('./dbUtil');
 
-const FILE_PATH = path.join(__dirname, 'reservations.json');
-const REDIS_KEY = 'portfolio:reservations';
+const COLUMNS =
+  'id, reservationNo:reservation_no, name, email, purpose, date:visit_date, time:visit_time, ' +
+  'consent, status, createdAt:created_at, updatedAt:updated_at';
 
-const REDIS_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
-const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
-const useRedis = Boolean(REDIS_URL && REDIS_TOKEN);
+const TO_COLUMN = {
+  reservationNo: 'reservation_no',
+  name: 'name',
+  email: 'email',
+  purpose: 'purpose',
+  date: 'visit_date',
+  time: 'visit_time',
+  consent: 'consent',
+  status: 'status',
+};
 
-let redisClient = null;
-function getRedis() {
-  if (!redisClient) {
-    const { Redis } = require('@upstash/redis');
-    redisClient = new Redis({ url: REDIS_URL, token: REDIS_TOKEN });
-  }
-  return redisClient;
+function toRow(data) {
+  const row = {};
+  Object.entries(TO_COLUMN).forEach(([field, column]) => {
+    if (data[field] !== undefined) row[column] = data[field];
+  });
+  return row;
 }
 
-async function readAll() {
-  if (useRedis) {
-    const data = await getRedis().get(REDIS_KEY);
-    return Array.isArray(data) ? data : [];
-  }
-  if (!fs.existsSync(FILE_PATH)) return [];
-  const raw = fs.readFileSync(FILE_PATH, 'utf-8');
-  return raw.trim() ? JSON.parse(raw) : [];
-}
-
-async function writeAll(items) {
-  if (useRedis) {
-    await getRedis().set(REDIS_KEY, items);
-    return;
-  }
-  fs.writeFileSync(FILE_PATH, JSON.stringify(items, null, 2), 'utf-8');
+// DB 의 time 은 '10:30:00' 형태라, 예전처럼 '10:30' 으로 맞춥니다.
+function fromRow(row) {
+  return row ? { ...row, time: String(row.time).slice(0, 5) } : null;
 }
 
 async function getAll() {
-  return readAll();
+  const rows = unwrap(await db.from('reservations').select(COLUMNS).order('created_at', { ascending: true }));
+  return rows.map(fromRow);
 }
 
 async function create(data) {
-  const items = await readAll();
-  const item = { id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() };
-  items.push(item);
-  await writeAll(items);
-  return item;
+  return fromRow(unwrap(await db.from('reservations').insert(toRow(data)).select(COLUMNS).single()));
 }
 
 async function update(id, patch) {
-  const items = await readAll();
-  const index = items.findIndex((item) => item.id === id);
-  if (index === -1) return null;
-  items[index] = { ...items[index], ...patch, id: items[index].id, updatedAt: new Date().toISOString() };
-  await writeAll(items);
-  return items[index];
+  if (!isUuid(id)) return null;
+  return fromRow(
+    unwrap(await db.from('reservations').update(toRow(patch)).eq('id', id).select(COLUMNS).maybeSingle())
+  );
 }
 
 module.exports = { getAll, create, update };

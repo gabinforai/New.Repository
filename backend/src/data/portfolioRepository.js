@@ -1,51 +1,77 @@
 /**
  * 데이터 저장소 계층 (Repository Layer)
  * ---------------------------------------------------------------
- * 지금은 로컬 JSON 파일을 "가짜 데이터베이스"처럼 읽어서 사용합니다.
+ * Supabase(PostgreSQL)에서 포트폴리오 데이터를 읽습니다.
+ * 함수 이름과 반환값의 모양(camelCase 필드)은 예전 JSON 방식과 똑같이 유지하므로
+ * services / controllers / routes / 프론트엔드는 수정할 필요가 없습니다.
  *
- * 나중에 실제 데이터베이스(MongoDB, PostgreSQL, MySQL 등)를 연결할 때는
- * 이 파일 안의 함수 내용만 DB 조회 코드로 바꿔주면 됩니다.
- * 각 함수의 이름과 반환값 형태(모양)만 유지하면,
- * 서비스(services)·컨트롤러(controllers)·라우터(routes)는 전혀 수정할 필요가 없습니다.
- *
- * 예) MongoDB로 바꾸는 경우:
- *   async function getEducation() {
- *     return db.collection('education').find().toArray();
- *   }
+ * 공개 여부: 각 표의 is_public 이 true 인 행만 돌려줍니다.
+ * (DB 의 RLS 정책도 같은 규칙으로 한 번 더 막고 있습니다.)
  * ---------------------------------------------------------------
  */
-const fs = require('fs');
-const path = require('path');
+const db = require('../config/supabase');
+const { unwrap } = require('./dbUtil');
 
-function readJson(fileName) {
-  const filePath = path.join(__dirname, fileName);
-  const raw = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(raw);
+// 공개된 행만, 정해진 순서(sort_order)대로. alias(`별칭:컬럼`)로 snake_case → camelCase 변환
+async function listPublic(table, columns) {
+  return unwrap(
+    await db.from(table).select(columns).eq('is_public', true).order('sort_order', { ascending: true })
+  );
+}
+
+// null 인 값은 응답에서 뺍니다 (예전 JSON 에서 해당 키가 아예 없던 것과 같은 모양)
+function dropNulls(row) {
+  return Object.fromEntries(Object.entries(row).filter(([, value]) => value !== null));
 }
 
 async function getProfile() {
-  // TODO(DB 연결 시): return db.collection('profile').findOne();
-  return readJson('profile.json');
+  const profile = unwrap(
+    await db
+      .from('profile')
+      .select('id, name, tagline, heroEyebrow:hero_eyebrow, heroDesc:hero_desc')
+      .eq('is_public', true)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+  );
+
+  // 공개된 프로필이 없어도 화면이 깨지지 않도록 빈 모양을 돌려줍니다.
+  if (!profile) {
+    return { name: '', tagline: '', heroEyebrow: '', heroDesc: '', basicInfo: [] };
+  }
+
+  const basicInfo = unwrap(
+    await db
+      .from('profile_basic_info')
+      .select('icon, label, value')
+      .eq('profile_id', profile.id)
+      .eq('is_public', true)
+      .order('sort_order', { ascending: true })
+  );
+
+  const { id, ...rest } = profile;
+  return { ...rest, basicInfo };
 }
 
 async function getEducation() {
-  // TODO(DB 연결 시): return db.collection('education').find().toArray();
-  return readJson('education.json');
+  const rows = await listPublic(
+    'education',
+    'school, department, admissionYear:admission_year, status, current:is_current'
+  );
+  return rows.map(dropNulls);
 }
 
 async function getAchievements() {
-  // TODO(DB 연결 시): return db.collection('achievements').find().toArray();
-  return readJson('achievements.json');
+  return listPublic('achievements', 'year, prefix, highlight');
 }
 
 async function getLikes() {
-  // TODO(DB 연결 시): return db.collection('likes').find().toArray();
-  return readJson('likes.json');
+  return listPublic('likes', 'icon, label');
 }
 
 async function getContact() {
-  // TODO(DB 연결 시): return db.collection('contact').find().toArray();
-  return readJson('contact.json');
+  const rows = await listPublic('contact_links', 'type, icon, label, href');
+  return rows.map(dropNulls);
 }
 
 module.exports = {
