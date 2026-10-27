@@ -95,6 +95,23 @@ const adminApi = {
       body: JSON.stringify(data),
     }).then(handleResponse),
 
+  listGuestbook: () =>
+    fetch(`${ADMIN_API_BASE}/guestbook`, { credentials: 'include' }).then(handleResponse),
+
+  setGuestbookHidden: (id, hidden) =>
+    fetch(`${ADMIN_API_BASE}/guestbook/${encodeURIComponent(id)}/hidden`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ hidden }),
+    }).then(handleResponse),
+
+  deleteGuestbook: (id) =>
+    fetch(`${ADMIN_API_BASE}/guestbook/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }).then(handleResponse),
+
   listReservations: () =>
     fetch(`${ADMIN_API_BASE}/reservations`, { credentials: 'include' }).then(handleResponse),
 

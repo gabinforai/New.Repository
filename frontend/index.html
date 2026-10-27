@@ -20,6 +20,7 @@
           <a href="#achieve">활동 &amp; 자격증</a>
           <a href="#projects">프로젝트</a>
           <a href="#likes">좋아하는 것</a>
+          <a href="#guestbook">방명록</a>
           <a href="#contact">연락처</a>
           <a href="visit.html">찾아오는 길</a>
         </nav>
@@ -140,6 +141,39 @@
     </div>
   </section>
 
+  <!-- 방명록 -->
+  <section id="guestbook" class="section section-alt">
+    <div class="section-inner reveal">
+      <p class="section-tag">GUESTBOOK</p>
+      <h2 class="section-title">방명록</h2>
+      <p class="gb-desc">다녀가신 흔적을 남겨 주세요. 남긴 글은 계속 보관돼요 :)</p>
+
+      <form class="gb-form" id="gbForm" novalidate>
+        <div class="gb-row">
+          <label class="gb-field gb-name">
+            <span>이름</span>
+            <input type="text" id="gbName" name="name" maxlength="20" placeholder="이름 또는 닉네임" autocomplete="nickname" required>
+          </label>
+          <label class="gb-field gb-msg">
+            <span>메시지 <em id="gbCount">0 / 500</em></span>
+            <textarea id="gbMessage" name="message" rows="3" maxlength="500" placeholder="응원, 인사, 하고 싶은 말을 남겨 주세요." required></textarea>
+          </label>
+        </div>
+        <input type="text" name="website" id="gbWebsite" class="gb-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <p class="gb-error" id="gbError" hidden></p>
+        <div class="gb-actions">
+          <span class="gb-total" id="gbTotal"></span>
+          <button type="submit" class="btn btn-primary" id="gbSubmit">남기기</button>
+        </div>
+      </form>
+
+      <div class="gb-list" id="gbList">
+        <p class="loading-text">불러오는 중...</p>
+      </div>
+      <p class="gb-more-wrap"><button type="button" class="btn btn-outline" id="gbMore" hidden>더 보기</button></p>
+    </div>
+  </section>
+
   <!-- 연락처 -->
   <section id="contact" class="section contact-section">
     <div class="section-inner contact-inner reveal">
@@ -203,5 +237,6 @@
   <script src="js/hand.js"></script>
   <script src="js/fun.js"></script>
   <script src="js/likes.js"></script>
+  <script src="js/guestbook.js"></script>
 </body>
 </html>

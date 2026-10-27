@@ -17,4 +17,19 @@ const api = {
   getLikes: () => fetchJson('/likes'),
   getContact: () => fetchJson('/contact'),
   getProjects: () => fetchJson('/projects'), // 공개(published) 프로젝트만 반환
+  getGuestbook: () => fetchJson('/guestbook'),
+  postGuestbook: async (data) => {
+    const res = await fetch(`${API_BASE_URL}/guestbook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const body = await res.json().catch(() => null);
+    if (!res.ok) {
+      const err = new Error((body && body.error) || '글을 남기지 못했습니다.');
+      err.details = body && body.details;
+      throw err;
+    }
+    return body;
+  },
 };
