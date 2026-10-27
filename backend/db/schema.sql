@@ -117,21 +117,6 @@ create unique index uq_active_slot
   on public.reservations (visit_date, visit_time)
   where status <> 'canceled';
 
--- 방명록 (서버만 접근; 방문자는 API 를 통해서만 읽고 씀)
--- 이미 만들어 둔 DB 에는 db/migrations/2026-10-guestbook.sql 만 따로 실행하면 됩니다.
-create table public.guestbook_entries (
-  id         uuid primary key default gen_random_uuid(),
-  name       text not null check (char_length(name) between 1 and 20),
-  message    text not null check (char_length(message) between 1 and 500),
-  is_hidden  boolean not null default false,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-create index guestbook_entries_created_idx on public.guestbook_entries (created_at desc);
-create trigger trg_guestbook_entries_updated before update on public.guestbook_entries
-  for each row execute function public.set_updated_at();
-alter table public.guestbook_entries enable row level security;
-
 -- 3. updated_at 트리거 ----------------------------------------
 do $$
 declare t text;
