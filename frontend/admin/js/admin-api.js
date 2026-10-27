@@ -4,6 +4,29 @@
 // localhost 또는 Render 백엔드 주소를 가리킵니다). 이 파일보다 먼저 로드되어야 합니다.
 const ADMIN_API_BASE = `${API_BASE_URL}/admin`;
 
+// 비밀번호를 "기억"하지 않기 위한 장치: 로그인에 성공한 이 탭에서만 관리자 화면을 열 수 있습니다.
+// sessionStorage 는 탭을 닫거나 새 탭을 열면 비어 있으므로, 그때마다 비밀번호를 다시 입력해야 합니다.
+const ADMIN_TAB_FLAG = 'adminTabLoggedIn';
+function hasAdminTabFlag() {
+  try {
+    return sessionStorage.getItem(ADMIN_TAB_FLAG) === '1';
+  } catch (err) {
+    return false;
+  }
+}
+function setAdminTabFlag(on) {
+  try {
+    if (on) sessionStorage.setItem(ADMIN_TAB_FLAG, '1');
+    else sessionStorage.removeItem(ADMIN_TAB_FLAG);
+  } catch (err) {
+    /* 저장소를 못 쓰는 환경 - 무시 */
+  }
+}
+// 로그인 화면이 아닌데 이 탭에서 로그인한 적이 없다면 곧바로 로그인 화면으로 보냅니다.
+if (!/\/login\.html$/.test(window.location.pathname) && !hasAdminTabFlag()) {
+  window.location.replace('login.html');
+}
+
 async function handleResponse(res) {
   if (res.status === 204) return null;
 
@@ -32,13 +55,18 @@ const adminApi = {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({ password }),
-    }).then(handleResponse),
+    }).then(handleResponse).then((body) => {
+      setAdminTabFlag(true);
+      return body;
+    }),
 
-  logout: () =>
-    fetch(`${ADMIN_API_BASE}/logout`, {
+  logout: () => {
+    setAdminTabFlag(false);
+    return fetch(`${ADMIN_API_BASE}/logout`, {
       method: 'POST',
       credentials: 'include',
-    }).then(handleResponse),
+    }).then(handleResponse);
+  },
 
   checkSession: () =>
     fetch(`${ADMIN_API_BASE}/me`, { credentials: 'include' }).then(handleResponse),

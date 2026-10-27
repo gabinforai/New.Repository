@@ -2,15 +2,11 @@ const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const loginSubmit = document.getElementById('loginSubmit');
 
-// 이미 로그인되어 있다면 바로 대시보드로 이동
-adminApi
-  .checkSession()
-  .then(() => {
-    window.location.href = 'dashboard.html';
-  })
-  .catch(() => {
-    /* 로그인 안 된 상태 - 로그인 폼을 계속 보여줌 */
-  });
+// 로그인 화면에 들어오면 이전 로그인 흔적을 지워, 항상 비밀번호를 새로 입력하게 합니다.
+setAdminTabFlag(false);
+adminApi.logout().catch(() => {
+  /* 로그인 안 된 상태여도 문제 없음 */
+});
 
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
