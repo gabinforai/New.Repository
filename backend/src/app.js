@@ -42,7 +42,8 @@ app.use(cookieParser());
 
 // 관리자 페이지/응답은 브라우저나 중간 서버에 캐시되지 않도록 합니다.
 // 로그아웃 후 뒤로가기를 눌러도 캐시된 화면이 남아있지 않게 하기 위함입니다.
-app.use(['/admin', '/api/admin'], (req, res, next) => {
+// 공개 API(/api/*)도 마찬가지로 캐시하지 않아, 관리자에서 저장한 내용이 새로고침 즉시 사이트에 보입니다.
+app.use(['/admin', '/api'], (req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
 });

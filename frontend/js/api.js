@@ -2,7 +2,7 @@
 // 나중에 API 주소나 요청 방식(인증 헤더 추가 등)이 바뀌어도 이 파일만 수정하면 됩니다.
 
 async function fetchJson(path) {
-  const res = await fetch(`${API_BASE_URL}${path}`);
+  const res = await fetch(`${API_BASE_URL}${path}`, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error(`API 요청 실패: ${path} (status ${res.status})`);
   }
