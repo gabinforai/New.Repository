@@ -61,6 +61,12 @@
 
   <!-- 히어로 -->
   <section id="home" class="hero">
+    <canvas id="heroCanvas" class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-ticker" id="heroTicker" aria-hidden="true"><span>YOU CRAZY, SLOW DOWN YOU CRAZY, SLOW DOWN YOU CRAZY, SLOW DOWN YOU CRAZY, SLOW DOWN </span></div>
+    <div class="hero-hud hero-hud-tl" aria-hidden="true">©GABIN_LAB <i></i> <a href="#about">LEARN MORE</a></div>
+    <div class="hero-hud hero-hud-tr" id="hudPose" aria-hidden="true">ASTRO DITHER</div>
+    <div class="hero-hud hero-hud-bl" id="hudTime" aria-hidden="true">00:00:000</div>
+    <div class="hero-hud hero-hud-br" aria-hidden="true">HOLD FOR SPEED <i></i> <span id="hudSpeed">1.00x</span></div>
     <div class="hero-bg">
       <span class="leaf leaf1"></span>
       <span class="leaf leaf2"></span>
@@ -193,5 +199,6 @@
   <script src="js/render.js"></script>
   <script src="js/main.js"></script>
   <script src="js/app-init.js"></script>
+  <script src="js/hand.js"></script>
 </body>
 </html>

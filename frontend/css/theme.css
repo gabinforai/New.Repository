@@ -327,3 +327,63 @@ button.btn-outline{
 @media print{
   body{ background:#fff; color:#1a1a1a; }
 }
+
+/* ============================================================
+   히어로: 도트 손 + 입자 캔버스 / HUD / 띠 문구 (js/hand.js)
+   ============================================================ */
+.hero{ user-select:none; -webkit-user-select:none; }
+.hero-canvas{ position:absolute; inset:0; z-index:0; pointer-events:none; }
+.leaf{ display:none; }
+.hero-content{ z-index:2; }
+
+.hero-hud{
+  position:absolute; z-index:3;
+  font-family:var(--font-mono);
+  font-size:0.66rem;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--dim);
+  pointer-events:none;
+}
+.hero-hud a{ color:var(--text); pointer-events:auto; }
+.hero-hud a:hover{ color:var(--pink); }
+.hero-hud i{ display:inline-block; width:1px; height:0.9em; background:var(--line); margin:0 0.5em; vertical-align:-0.1em; }
+.hero-hud-tl{ top:18px; left:24px; }
+.hero-hud-tr{ top:18px; right:24px; }
+.hero-hud-bl{ bottom:18px; left:24px; }
+.hero-hud-br{ bottom:18px; right:24px; }
+.hero-hud-br span{ color:var(--text); }
+
+/* 가속하면 나타나는 가로 띠 문구 (RGB 분리) */
+.hero-ticker{
+  position:absolute; left:0; right:0; top:50%;
+  z-index:1;
+  overflow:hidden;
+  white-space:nowrap;
+  transform:translateY(-50%);
+  opacity:0;
+  transition:opacity .25s ease;
+  pointer-events:none;
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:clamp(1.4rem, 4vw, 2.6rem);
+  color:#fff;
+  text-shadow:var(--glitch);
+  mix-blend-mode:screen;
+}
+.hero-ticker.on{ opacity:1; }
+.hero-ticker span{ display:inline-block; animation:ticker 3.2s linear infinite; }
+@keyframes ticker{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+/* 글자가 손 위에서도 읽히도록 + 데스크톱에서는 글을 왼쪽으로 */
+@media (min-width:900px){
+  .hero{ justify-content:flex-start; text-align:left; padding-left:max(24px, 7vw); }
+  .hero-content{ max-width:560px; }
+  .hero-buttons{ justify-content:flex-start; }
+}
+@media (max-width:899px){
+  .hero-hud-tr{ display:none; }
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-ticker span{ animation:none; }
+}
