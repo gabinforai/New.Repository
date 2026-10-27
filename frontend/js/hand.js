@@ -233,7 +233,19 @@
       const ms = String(total % 1000).padStart(3, '0');
       hudTime.textContent = `${m}:${s}:${ms}`;
     }
-    if (ticker) ticker.classList.toggle('on', speed > 4);
+    if (ticker) {
+      const on = speed > 4;
+      if (on && !ticker.classList.contains('on')) {
+        // 나타날 때마다 처음(안녕하세요)부터 흐르도록 애니메이션을 다시 시작합니다.
+        const span = ticker.firstElementChild;
+        if (span) {
+          span.style.animation = 'none';
+          void span.offsetWidth;
+          span.style.animation = '';
+        }
+      }
+      ticker.classList.toggle('on', on);
+    }
   }
 
   function frame(now) {

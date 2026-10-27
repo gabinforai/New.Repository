@@ -387,3 +387,24 @@ button.btn-outline{
 @media (prefers-reduced-motion:reduce){
   .hero-ticker span{ animation:none; }
 }
+
+/* 꾹 누르기 안내 문구 */
+.hero-hint{
+  margin:22px 0 0;
+  font-family:var(--font-mono);
+  font-size:0.72rem;
+  letter-spacing:0.06em;
+  color:var(--dim);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:inherit;
+}
+.hero-hint-dot{
+  width:8px; height:8px; flex-shrink:0;
+  background:var(--pink);
+  animation:hintPulse 1.4s ease-in-out infinite;
+}
+@keyframes hintPulse{ 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(255,79,200,0.6); } 50%{ opacity:.5; box-shadow:0 0 0 7px rgba(255,79,200,0); } }
+@media (max-width:899px){ .hero-hint{ justify-content:center; text-align:center; } }
+@media (prefers-reduced-motion:reduce){ .hero-hint-dot{ animation:none; } }
