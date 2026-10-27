@@ -372,7 +372,7 @@ button.btn-outline{
   mix-blend-mode:screen;
 }
 .hero-ticker.on{ opacity:1; }
-.hero-ticker span{ display:inline-block; animation:ticker 3.2s linear infinite; }
+.hero-ticker span{ display:inline-block; animation:ticker 26s linear infinite; }
 @keyframes ticker{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
 /* 글자가 손 위에서도 읽히도록 + 데스크톱에서는 글을 왼쪽으로 */
