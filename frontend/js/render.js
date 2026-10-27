@@ -26,7 +26,7 @@ function renderBasicInfo(basicInfo) {
   grid.innerHTML = basicInfo
     .map(
       (item) => `
-    <div class="info-card reveal">
+    <div class="info-card reveal" data-label="${item.label}" role="button" tabindex="0">
       <span class="info-icon">${item.icon}</span>
       <p class="info-label">${item.label}</p>
       <p class="info-value">${item.value}</p>
