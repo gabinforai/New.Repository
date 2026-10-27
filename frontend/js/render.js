@@ -76,7 +76,7 @@ function renderLikes(likes) {
   const grid = document.getElementById('likesGrid');
   if (!grid) return;
   grid.innerHTML = likes
-    .map((item) => `<div class="like-chip reveal"><span>${item.icon}</span>${item.label}</div>`)
+    .map((item) => `<div class="like-chip reveal" data-label="${item.label}" role="button" tabindex="0"><span>${item.icon}</span>${item.label}</div>`)
     .join('');
 }
 

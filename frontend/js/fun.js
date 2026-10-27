@@ -445,6 +445,9 @@
     setTimeout(() => lane.remove(), 2800);
   }
 
+  // 다른 스크립트(likes.js)에서 같은 소리/팝업 도구를 쓰도록 공유합니다.
+  window.funKit = { voice, audio, openModal, closeModal, el, reduceMotion, COLORS };
+
   const ACTIONS = {
     '생년월일': birthday,
     '별자리': scorpio,
